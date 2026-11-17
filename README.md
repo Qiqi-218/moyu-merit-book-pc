@@ -9,6 +9,8 @@
 
 ## 一、运行与校验
 
+> 新队友请先读 [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)：含环境要求、常见安装报错的排查表与一键修复脚本 `scripts/fix-binaries.ps1`。
+
 ```bash
 npm install
 npm run typecheck
