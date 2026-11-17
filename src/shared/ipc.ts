@@ -1,4 +1,5 @@
 import type { Result, AppError } from './result'
+import type { Rules } from './types/rules'
 import type {
     Activity,
     DraftPayload,
@@ -85,6 +86,7 @@ export const IPC = {
 
     settingsGet: 'moyu:settings:get',
     settingsPatch: 'moyu:settings:patch',
+    rulesReset: 'moyu:rules:reset',
 
     tagsList: 'moyu:tags:list',
     tagsCreate: 'moyu:tags:create',
@@ -188,6 +190,7 @@ export interface ChannelMap {
 
     [IPC.settingsGet]: { req: void; res: Settings }
     [IPC.settingsPatch]: { req: SettingsPatch; res: Settings }
+    [IPC.rulesReset]: { req: void; res: Rules }
 
     [IPC.tagsList]: { req: void; res: Tag[] }
     [IPC.tagsCreate]: { req: CreateTagInput; res: Tag }
@@ -276,6 +279,9 @@ export interface MoyuApi {
     settings: {
         get(): Promise<Result<Settings>>
         patch(patch: SettingsPatch): Promise<Result<Settings>>
+    }
+    rules: {
+        reset(): Promise<Result<Rules>>
     }
     tags: {
         list(): Promise<Result<Tag[]>>
@@ -367,4 +373,4 @@ export interface MoyuApi {
     }
 }
 
-export const MOYU_API_METHOD_COUNT = 69
+export const MOYU_API_METHOD_COUNT = 70

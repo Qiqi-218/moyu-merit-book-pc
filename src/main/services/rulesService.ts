@@ -1,8 +1,12 @@
 import { access, copyFile, mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
+import { ok } from '@shared/result'
+import type { Result } from '@shared/result'
 import { DEFAULT_RULES } from '@shared/defaultRules'
 import type { Rules } from '@shared/types/rules'
 import { logger } from '../utils/logger'
+import type { ServiceContext } from './context'
+import { errorToFail } from './helpers'
 
 export function rulesFilePath(dataDir: string): string {
     return join(dataDir, 'rules.json')
@@ -70,4 +74,18 @@ export async function resetRules(dataDir: string): Promise<Rules> {
     const rules = structuredClone(DEFAULT_RULES)
     await writeFile(rulesFilePath(dataDir), JSON.stringify(rules, null, 2), 'utf8')
     return rules
+}
+export async function resetRulesFor(ctx: ServiceContext): Promise<Result<Rules>> {
+    try {
+        const rules = await resetRules(ctx.store.dataDir)
+        await ctx.commit((draft) => {
+            const previous = draft.rules.rulesVersion
+            draft.rules = rules
+            ctx.logChange('rules', 'default', 'update', previous, rules.rulesVersion)
+        })
+        ctx.broadcast('settings')
+        return ok(rules)
+    } catch (error) {
+        return errorToFail('rules', error)
+    }
 }

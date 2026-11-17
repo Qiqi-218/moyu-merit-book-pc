@@ -154,6 +154,7 @@ export const GUARD_VALIDATORS: Record<InvokeChannel, Validator> = {
 
     [IPC.settingsGet]: noArg,
     [IPC.settingsPatch]: settingsPatch,
+    [IPC.rulesReset]: noArg,
 
     [IPC.tagsList]: noArg,
     [IPC.tagsCreate]: object((value) =>

@@ -44,6 +44,7 @@ const clearPassValue = ref('')
 const clearDemoOpen = ref(false)
 const clearAllOpen = ref(false)
 const clearAllText = ref('')
+const rulesResetOpen = ref(false)
 
 const rulesVersion = computed(() => DEFAULT_RULES.rulesVersion)
 
@@ -112,6 +113,17 @@ async function openDataDir(): Promise<void> {
 
 async function openRules(): Promise<void> {
   await window.moyu.app.openRulesFile()
+}
+
+async function resetRules(): Promise<void> {
+  rulesResetOpen.value = false
+  const result = await window.moyu.rules.reset()
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  ui.pushToast('已恢复默认规则', `规则版本 ${result.data.rulesVersion}`, 'success')
+  await app.refresh()
 }
 
 async function createBackup(): Promise<void> {
@@ -295,14 +307,17 @@ onMounted(() => {
 
         <SectionCard title="规则与 AI">
           <div class="settings-grid">
-            <Field label="规则版本">
+            <Field label="默认规则版本">
               <TextInput :model-value="rulesVersion" disabled />
             </Field>
             <Field label="规则文件">
               <AppButton size="sm" variant="secondary" @click="openRules">打开规则文件</AppButton>
             </Field>
+            <Field label="恢复默认">
+              <AppButton size="sm" variant="danger" @click="rulesResetOpen = true">恢复默认规则</AppButton>
+            </Field>
           </div>
-          <p class="settings-note">规则文件位于数据目录下 rules.json。如需恢复默认规则，删除该文件后重启应用即可。</p>
+          <p class="settings-note">规则文件位于数据目录下 rules.json。恢复默认会重写该文件并立即生效，已产生的功德流水与快照不受影响。</p>
           <div class="switch-row">
             <div><span class="switch-row__label">AI 判词</span><span class="switch-row__desc">本版本未接入，仅作预留</span></div>
             <button type="button" class="switch" role="switch" :aria-checked="boolValue('aiEnabled')" @click="patch({ aiEnabled: !boolValue('aiEnabled') })">
@@ -373,6 +388,16 @@ onMounted(() => {
       danger
       @confirm="clearDemo"
       @cancel="clearDemoOpen = false"
+    />
+
+    <ConfirmDialog
+      :visible="rulesResetOpen"
+      title="恢复默认规则"
+      message="将把计分基数、标签系数、称号阈值、成就与判词模板全部恢复为默认值，并重写数据目录下的 rules.json。已产生的功德流水与快照不受影响。"
+      confirm-label="恢复默认"
+      danger
+      @confirm="resetRules"
+      @cancel="rulesResetOpen = false"
     />
   </div>
 </template>

@@ -49,6 +49,9 @@ export const api: MoyuApi = {
         get: () => invoke(IPC.settingsGet),
         patch: (patch) => invoke(IPC.settingsPatch, patch)
     },
+    rules: {
+        reset: () => invoke(IPC.rulesReset)
+    },
     tags: {
         list: () => invoke(IPC.tagsList),
         create: (input) => invoke(IPC.tagsCreate, input),

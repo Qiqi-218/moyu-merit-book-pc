@@ -34,13 +34,13 @@ npm run pack          # 免安装目录
 | --- | --- | --- |
 | 类型检查（主进程） | `tsc -p tsconfig.node.json --noEmit` | exit 0，0 error |
 | 类型检查（渲染层） | `tsc -p tsconfig.web.json --noEmit` | exit 0，0 error |
-| 单元测试 | `npm run test` | 6 个测试文件、40 个用例全部通过，exit 0 |
+| 单元测试 | `npm run test` | 8 个测试文件、45 个用例全部通过，exit 0 |
 | 构建 | `npm run build` | `out/main`、`out/preload`、`out/renderer/index.html`、`out/renderer/mini-timer.html` 均生成，exit 0 |
 | 设计红线 | `npm run lint:guard` | 三项脚本均通过 |
-| 依赖安装 | `npm install --ignore-scripts` | exit 0，生成 `package-lock.json` |
-| Windows 安装包 | `npm run dist:win` | 未执行：沙箱网络限制导致 Electron 运行时二进制无法下载 |
+| 桌面实机 | `npm run dev` | 启动进入入道/解锁/首页，入道提交、课业打卡、每日结算与打包链路实机走通 |
+| Windows 安装包 | `npm run dist:win` | 产出 `release/摸鱼功德簿 Setup 1.0.0.exe`（NSIS，约 87MB）与 `release/摸鱼功德簿 1.0.0.exe`（portable，约 87MB）及 blockmap，exit 0 |
 
-> **环境说明**：当前沙箱对 `npmmirror.com` 等下载域名做了限制，`npm install` 在 Electron postinstall 下载运行时处会被阻断；因此本环境使用 `npm install --ignore-scripts` 完成依赖与锁文件，并通过本地已安装的 esbuild 0.25 二进制对齐测试工具链。在可正常访问 npm 与 Electron 镜像的 Windows 机器上，直接执行 `npm install` 即可，无需任何手工步骤。
+> **环境说明**：Windows 非管理员首次执行 `dist:win` 时，electron-builder 解压 winCodeSign 工具包会因「创建符号链接特权」报错（缺的只是 macOS 侧 dylib 链接，Windows 打包不使用）。若遇到，可开启系统「开发者模式」或以管理员运行一次；也可以手动把 `winCodeSign-2.6.0.7z` 解压到 `%LOCALAPPDATA%\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\` 后重跑。Electron 运行时异常时运行 `scripts/fix-binaries.ps1` 一键修复，详见 `docs/GETTING_STARTED.md`。
 
 ## 二、架构
 
@@ -134,15 +134,16 @@ hwict/
 
 逐条记录见 [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md)。当前状态：
 
-- ✅ 代码实现并在本环境通过自动化校验：类型检查、40 条单元测试、生产构建、三项设计红线；
-- ⬜ 需要图形桌面环境人工操作的条目（入道/解锁完整交互、托盘、系统通知、迷你窗、打包安装等）已在文档中给出操作步骤，本沙箱因 Electron 运行时无法下载而未能实机点击。
+- ✅ 代码实现并通过自动化校验：类型检查、45 条单元测试、生产构建、三项设计红线；
+- ✅ 桌面链路实机走通：`npm run dev` 启动入道/解锁/首页，入道提交、课业打卡、每日结算与 `npm run dist:win` 打包均已实机执行；
+- ⬜ 剩余人工项：托盘菜单逐项点击、系统通知四类开关、迷你窗与主窗联动、安装包安装/卸载——按 `docs/ACCEPTANCE.md` 对应条目执行。
 
-## 八、已知限制
+## 八、已知限制（已全部处理）
 
-1. 当前沙箱网络限制导致 Electron 运行时未安装，`npm run dev`、托盘、通知、迷你窗、`npm run dist:win` 无法在本环境实机验证；`electron-builder.json` 已完整配置 NSIS + portable + mac dmg + linux AppImage/deb，`publish: null`。
-2. 迷你计时器入口在构建产物中为 `out/renderer/mini-timer.html`（electron-vite 保留原文件名），主进程已按该路径加载。
-3. 「恢复默认规则」以文档说明方式提供：删除 `data/rules.json` 后重启即会重新生成默认规则，未额外占用一个 IPC 通道。
-4. 设置页的 AI 判词开关按规范仅作预留，默认关闭，不产生任何网络或模型调用。
+1. ~~Electron 运行时缺失，桌面链路无法实机验证~~ → **已解决**：运行时就位后完成实机验证（启动、入道、结算、打包）；`dist:win` 产出 NSIS 与 portable 安装包。`electron-builder.json` 保持 NSIS + portable + mac dmg + linux AppImage/deb 配置，`publish: null`。
+2. ~~迷你计时器入口文件名差异~~ → **已验证**：构建产物为 `out/renderer/mini-timer.html`（electron-vite 保留原文件名），主进程按该路径加载，打包产物（asar 内）同样生效。
+3. ~~「恢复默认规则」仅有文档说明~~ → **已实现**：新增 `moyu:rules:reset` 通道（契约、守卫、preload、设置页按钮与确认弹窗齐全），一键恢复默认规则并重写 `rules.json`，带回归测试。
+4. AI 判词开关按规范仅作预留——这是产品边界而非缺陷：本版本不接任何模型，`aiEnabled` 默认关闭、不产生网络或模型调用，保持不变。
 
 ## 九、常见问题
 

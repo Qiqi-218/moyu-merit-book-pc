@@ -17,7 +17,8 @@ if (-not (Test-Path $distExe)) {
     Invoke-WebRequest "$mirror$version/electron-v$version-win32-x64.zip" -OutFile $zip
     Expand-Archive $zip -DestinationPath node_modules/electron/dist -Force
     Write-Host "Electron runtime extracted."
-} else {
+}
+else {
     Write-Host "Electron runtime already present, skip download."
 }
 
@@ -28,7 +29,8 @@ $pkgDir = (Get-Location).Path + "\node_modules\electron"
 $check = node -p "require('electron')"
 if ($check -and (Test-Path $check)) {
     Write-Host "Electron ready: $check"
-} else {
+}
+else {
     Write-Error "Verification failed: 'require('electron')' did not resolve to a valid executable."
     exit 1
 }

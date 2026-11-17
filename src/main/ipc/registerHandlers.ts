@@ -32,6 +32,7 @@ import { errorToFail } from '../services/helpers'
 import * as appSvc from '../services/appService'
 import * as profileSvc from '../services/profileService'
 import * as settingsSvc from '../services/settingsService'
+import * as rulesSvc from '../services/rulesService'
 import * as tagSvc from '../services/tagService'
 import * as eventSvc from '../services/eventService'
 import * as instanceSvc from '../services/instanceService'
@@ -123,6 +124,7 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
             if (result.ok) deps.onSettingsPatched(result.data)
             return result
         },
+        [IPC.rulesReset]: async () => rulesSvc.resetRulesFor(ctx),
 
         [IPC.tagsList]: async () => tagSvc.listTags(ctx),
         [IPC.tagsCreate]: async (payload) => tagSvc.createTag(ctx, payload as CreateTagInput),
