@@ -7,6 +7,8 @@
 - 主进程是唯一可信数据源，渲染层只做界面；
 - 图表全部为手写内联 SVG，无 UI 库、图表库、CSS 框架、图标库、dayjs、axios。
 
+**只想用不想开发？** 安装包已随仓库发布：无需装 Node，直接从 [`release/`](release/) 下载 `摸鱼功德簿 Setup 1.0.0.exe`（安装版）或 `摸鱼功德簿 1.0.0.exe`（免安装版），双击运行即可。
+
 ## 一、运行与校验
 
 > 新队友请先读 [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)：含环境要求、常见安装报错的排查表与一键修复脚本 `scripts/fix-binaries.ps1`。

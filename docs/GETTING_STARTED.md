@@ -41,21 +41,30 @@ npm run dev
 
 见上文「快速开始」。适合开发与调试。
 
-### 方式 B：直接运行打包版 exe（不改代码，无需 Node 环境）
+### 方式 B：直接从 GitHub 下载安装包（不改代码，无需 Node 环境）
 
-向项目负责人要 `release\` 目录里的成品，或自行打包：
+安装包已随源码一起发布在仓库的 `release/` 目录。打开仓库页：
+
+```text
+https://github.com/Qiqi-218/moyu-merit-book-pc/tree/main/release
+```
+
+下载后按用途选择：
+
+- `摸鱼功德簿 Setup 1.0.0.exe`：**安装版**，双击按向导安装，桌面与开始菜单出现「摸鱼功德簿」快捷方式；
+- `摸鱼功德簿 1.0.0.exe`：**免安装版**（portable），双击直接运行。
+
+打包版数据目录：`%APPDATA%\摸鱼功德簿\`。
+
+> 下载的是历史版本也没关系：先启动一次让数据落盘，再更新到最新版即可，数据不会丢。
+
+### 方式 B2：自行打包（需要最新功能或想改代码时）
 
 ```powershell
 npm run dist:win
 ```
 
-产物与用法：
-
-- `release\摸鱼功德簿 Setup 1.0.0.exe`：**安装版**，双击按向导安装，桌面与开始菜单出现「摸鱼功德簿」快捷方式；
-- `release\摸鱼功德簿 1.0.0.exe`：**免安装版**（portable），双击直接运行；
-- 免安装目录版：`release\win-unpacked\摸鱼功德簿.exe`。
-
-打包版数据目录：`%APPDATA%\摸鱼功德簿\`。首次 `dist:win` 需要联网下载打包工具（NSIS / winCodeSign），先设镜像：
+产物输出到本地 `release\`。首次 `dist:win` 需要联网下载打包工具（NSIS / winCodeSign），先设镜像：
 
 ```powershell
 $env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
