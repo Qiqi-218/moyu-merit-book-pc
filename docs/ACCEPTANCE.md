@@ -34,10 +34,11 @@
 ```
 tsc -p tsconfig.node.json --noEmit        exit 0
 tsc -p tsconfig.web.json  --noEmit        exit 0
-npm run test                              6 files / 40 tests passed, exit 0
+npm run test                              8 files / 45 tests passed, exit 0
 npm run build                             out/main + out/preload + out/renderer, exit 0
 npm run lint:guard                        tokens / network / copy 三项通过
-npm install --ignore-scripts              exit 0, package-lock.json 生成
+npm run dev                               实机启动：入道/解锁/首页，入道提交、课业打卡、每日结算走通
+npm run dist:win                          exit 0，产出 NSIS 与 portable 安装包（release\）
 ```
 
-Electron 运行时与 Windows 安装包未能在此沙箱生成：沙箱禁止访问 Electron 二进制下载域名。相关桌面交互项（ACC-01、02、05、18 等）需在可安装 Electron 的 Windows 图形环境中按上表人工执行。
+桌面链路已实机走通（含入道契约违约与 logChange 落盘两处缺陷的修复回归）。剩余人工项：托盘菜单、系统通知、迷你窗联动、安装包安装/卸载，以及 ACC-20 的 5 万条性能基准。
