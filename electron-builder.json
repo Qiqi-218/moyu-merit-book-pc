@@ -1,0 +1,74 @@
+{
+    "appId": "com.moyu.meritbook",
+    "productName": "摸鱼功德簿",
+    "copyright": "Copyright © 2026 Moyu Merit Book",
+    "directories": {
+        "buildResources": "build",
+        "output": "release"
+    },
+    "files": [
+        "out/**/*",
+        "package.json",
+        "!**/*.map"
+    ],
+    "asar": true,
+    "extraResources": [
+        {
+            "from": "resources/rules",
+            "to": "rules"
+        },
+        {
+            "from": "resources/icon",
+            "to": "icon"
+        }
+    ],
+    "win": {
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64"
+                ]
+            },
+            {
+                "target": "portable",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ],
+        "icon": "build/icon.ico",
+        "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+        "oneClick": false,
+        "perMachine": false,
+        "allowToChangeInstallationDirectory": true,
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "shortcutName": "摸鱼功德簿"
+    },
+    "mac": {
+        "target": [
+            {
+                "target": "dmg",
+                "arch": [
+                    "x64",
+                    "arm64"
+                ]
+            }
+        ],
+        "category": "public.app-category.productivity",
+        "icon": "build/icon.icns",
+        "hardenedRuntime": true
+    },
+    "linux": {
+        "target": [
+            "AppImage",
+            "deb"
+        ],
+        "category": "Utility",
+        "icon": "build/icon.png"
+    },
+    "publish": null
+}

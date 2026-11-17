@@ -1,0 +1,85 @@
+:root {
+  --bg: #f4f0e6;
+  --surface: #fffdf7;
+  --surface-2: #fbf8f0;
+  --line: #e5dfd2;
+  --line-soft: #ede7da;
+  --ink: #2f3a33;
+  --ink-2: #3f4a42;
+  --text-2: #6e756c;
+  --muted: #7a8078;
+  --muted-2: #9a9f95;
+  --placeholder: #a9ada4;
+  --green: #4f7a62;
+  --green-deep: #3f6a52;
+  --green-soft: #e5efe8;
+  --green-line: #a9c0b1;
+  --gold: #b7864c;
+  --gold-deep: #9a7a3f;
+  --gold-soft: #f7eedc;
+  --danger: #b46a5a;
+  --danger-soft: #f6e7e2;
+  --danger-line: #d9b3a9;
+  --warm: #b08a45;
+  --overlay: rgba(47, 58, 51, 0.28);
+
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, monospace;
+
+  --fs-page: 26px;
+  --fs-card: 17px;
+  --fs-body: 14px;
+  --fs-note: 12px;
+  --fs-micro: 11px;
+  --fs-display: 40px;
+  --fs-timer: 64px;
+
+  --sp-1: 8px;
+  --sp-2: 12px;
+  --sp-3: 16px;
+  --sp-4: 20px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 40px;
+  --sp-8: 48px;
+
+  --r-card: 16px;
+  --r-input: 10px;
+  --r-btn: 10px;
+  --r-pill: 999px;
+  --r-seal: 2px;
+
+  --shadow-card: 0 4px 16px rgba(79, 90, 74, 0.06);
+  --shadow-pop: 0 12px 32px rgba(47, 58, 51, 0.14);
+
+  --t-fast: 150ms;
+  --t-base: 200ms;
+  --t-drawer: 240ms;
+  --t-count: 300ms;
+  --t-progress: 250ms;
+  --ease: ease-out;
+
+  --z-header: 10;
+  --z-sidebar: 20;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-command: 400;
+
+  --titlebar-h: 40px;
+  --sidebar-w: 232px;
+  --header-h: 64px;
+  --content-max: 1160px;
+  --content-pad: 40px;
+}
+
+[data-font-size="large"] {
+  --fs-page: 29px;
+  --fs-card: 19px;
+  --fs-body: 16px;
+  --fs-note: 13px;
+  --fs-micro: 12px;
+  --fs-display: 44px;
+  --fs-timer: 68px;
+}
