@@ -1,8 +1,69 @@
 # 队友上手指南（Getting Started）
 
-从 GitHub 拉取代码到跑起来的完整步骤，以及这台项目开发过程中真实踩过的环境坑与对应解法。遇到问题先对号入座第 4 节，再回头读第 5 节的原理。
+从 GitHub 拉取代码到跑起来的完整步骤，以及本团队开发过程中真实踩过的环境坑与对应解法。遇到问题先对号入座「安装报错排查」一节。
 
-## 0. 环境要求
+## 一、快速开始（三分钟看到界面）
+
+前提：已安装 Node.js ≥ 20 与 Git（要求见「三、环境要求」）。在任意目录执行：
+
+```powershell
+git clone https://github.com/Qiqi-218/moyu-merit-book-pc.git
+cd moyu-merit-book-pc
+npm install
+npm run dev
+```
+
+逐条说明：
+
+1. `git clone`：拉取源码（约 2 MB）。
+2. `npm install`：安装依赖并自动下载 Electron 运行时（约 100 MB，1–3 分钟）。下载慢先设镜像：
+
+   ```powershell
+   $env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+   ```
+
+3. `npm run dev`：约 10 秒后**弹出应用窗口**——宣纸底色、无系统边框、左侧 232px 侧栏。
+4. 首次启动进入「首次入道」三步向导：填道号 → 可选设口令 → 选日界线/勾选示例数据 → 点「入道」→ 进入首页「修身」。
+
+启动之后：
+
+- 关闭窗口默认**最小化到托盘**（右下角印章图标），托盘菜单可重新打开或退出；
+- 数据只存本机：开发模式在 `%APPDATA%\moyu-merit-book\`，想重来就删掉该目录再启动；
+- 改前端代码会热重载；改主进程代码会自动重启应用。
+
+## 二、两种运行方式
+
+### 方式 A：开发模式（要改代码）
+
+```powershell
+npm run dev
+```
+
+见上文「快速开始」。适合开发与调试。
+
+### 方式 B：直接运行打包版 exe（不改代码，无需 Node 环境）
+
+向项目负责人要 `release\` 目录里的成品，或自行打包：
+
+```powershell
+npm run dist:win
+```
+
+产物与用法：
+
+- `release\摸鱼功德簿 Setup 1.0.0.exe`：**安装版**，双击按向导安装，桌面与开始菜单出现「摸鱼功德簿」快捷方式；
+- `release\摸鱼功德簿 1.0.0.exe`：**免安装版**（portable），双击直接运行；
+- 免安装目录版：`release\win-unpacked\摸鱼功德簿.exe`。
+
+打包版数据目录：`%APPDATA%\摸鱼功德簿\`。首次 `dist:win` 需要联网下载打包工具（NSIS / winCodeSign），先设镜像：
+
+```powershell
+$env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
+```
+
+> 若打包时报「创建符号链接特权」相关错误，以管理员身份运行一次 PowerShell 再打包，或在系统设置中开启「开发者模式」。
+
+## 三、环境要求
 
 | 项目 | 要求 | 自检命令 |
 | --- | --- | --- |
@@ -11,54 +72,7 @@
 | npm | ≥ 10 | `npm -v` |
 | Git | 任意近期版本 | `git --version` |
 
-首次构建需要联网下载 Electron 运行时（约 100 MB）。
-
-## 1. 拉取与安装
-
-```powershell
-git clone https://github.com/Qiqi-218/moyu-merit-book-pc.git
-cd moyu-merit-book-pc
-npm install
-```
-
-- 正常情况下 `npm install` 会自动下载 Electron 运行时，1–3 分钟完成。
-- 下载慢或卡住，先设镜像再装：
-
-```powershell
-$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm install
-```
-
-## 2. 启动开发模式
-
-```powershell
-npm run dev
-```
-
-首次启动会进入「首次入道」三步向导（道号 → 可选口令 → 日界线与示例数据）。数据只存本机：
-
-- 开发模式：`%APPDATA%\moyu-merit-book\`
-- 打包安装版：`%APPDATA%\摸鱼功德簿\`
-
-想重置数据，删除对应目录即可。
-
-## 3. 校验命令（提交前请全跑一遍）
-
-```powershell
-npm run typecheck   # 主进程 + 渲染层 TypeScript，0 error
-npm run test        # Vitest 全量单测（当前 44 条）
-npm run build       # 生产构建，产出 out/
-npm run lint:guard  # 色值 / 零网络 / 禁用文案 三项红线
-npm run dist:win    # Windows NSIS + portable 安装包，产出 release\
-```
-
-`dist:win` 首次执行会下载打包工具（NSIS / winCodeSign），先设镜像：
-
-```powershell
-$env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
-```
-
-## 4. 疑难排查（按症状对号入座）
+## 四、安装报错排查（按症状对号入座）
 
 | 症状 | 原因 | 解法 |
 | --- | --- | --- |
@@ -67,6 +81,7 @@ $env:ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-bu
 | `npm run test` 报 esbuild `The service was stopped` | esbuild 平台二进制缺失或版本错配 | 重跑 `npm install --ignore-scripts`，再运行 `scripts/fix-binaries.ps1` |
 | `cmd /c node -v` 提示找不到 node，但 PowerShell 里正常 | 系统 PATH 存在大量重复条目（超长截断） | 见 4.1 第 3 条 |
 | `npm install` 清理时报 `EBUSY` / `EPERM` | esbuild 服务进程或编辑器占用目录 | 关掉 VSCode 与残留 node 进程；删不掉先 `Rename-Item node_modules node_modules.bak` |
+| `dist:win` 报「创建符号链接特权」 | 非管理员解压 winCodeSign 工具包 | 以管理员运行一次，或开启系统「开发者模式」 |
 
 ### 4.1 npm 脚本壳 PATH 问题
 
@@ -94,13 +109,23 @@ cmd /c node -v
 
 有输出即根治，此后 `npm install` 无需任何特殊处理。
 
-## 5. `fix-binaries.ps1` 做了什么
+## 五、`fix-binaries.ps1` 做了什么
 
 1. 检查 `node_modules/electron/dist/electron.exe`；缺失则按 `node_modules/electron/package.json` 的版本从镜像下载 zip 并解压；
 2. 写入 `node_modules/electron/path.txt`（内容 `electron.exe`，**无换行**——electron-vite 靠它定位运行时，读取后不做 trim）；
 3. 用 `node -p "require('electron')"` 自检，输出 exe 完整路径即成功。
 
-## 6. 项目约定速览
+## 六、校验命令（提交前请全跑一遍）
+
+```powershell
+npm run typecheck   # 主进程 + 渲染层 TypeScript，0 error
+npm run test        # Vitest 全量单测
+npm run build       # 生产构建，产出 out/
+npm run lint:guard  # 色值 / 零网络 / 禁用文案 三项红线
+npm run dist:win    # Windows NSIS + portable 安装包，产出 release\
+```
+
+## 七、项目约定速览
 
 - 门禁五连未全绿不得宣称完成；提交信息用中文 conventional commits（如 `feat: 实现每日结算`）。
 - 界面文案中文、代码标识符英文；文案红线清单见 `src/shared/constants.ts` 的 `FORBIDDEN_PHRASES`。
