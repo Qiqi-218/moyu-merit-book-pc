@@ -15,4 +15,5 @@ data/
 *.local
 .codeartsdoer/
 docx/
-electron.exe.merkle-snapshot.json
+electron.exe
+.merkle-snapshot.json
