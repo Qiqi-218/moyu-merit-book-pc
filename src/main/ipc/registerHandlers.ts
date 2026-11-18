@@ -44,6 +44,7 @@ import * as achievementSvc from '../services/achievementService'
 import * as backupSvc from '../services/backupService'
 import * as recordsSvc from '../services/recordsService'
 import { guardPayload } from './guard'
+import { closeMiniWindow } from '../windows/miniWindow'
 
 export interface WindowBridge {
     getState(): { maximized: boolean; fullscreen: boolean; focused: boolean }
@@ -74,11 +75,12 @@ const LOCK_WHITELIST = new Set<string>([
     IPC.windowMinimize,
     IPC.windowToggleMaximize,
     IPC.windowClose,
-    IPC.windowSetFullscreen
+    IPC.windowSetFullscreen,
+    IPC.windowCloseMini
 ])
 
 function isMiniAllowed(channel: InvokeChannel): boolean {
-    return channel === IPC.appBootstrap || channel.startsWith('moyu:timer:') || channel === IPC.windowSetMiniAlwaysOnTop
+    return channel === IPC.appBootstrap || channel.startsWith('moyu:timer:') || channel === IPC.windowSetMiniAlwaysOnTop || channel === IPC.windowCloseMini
 }
 
 function isTrusted(event: IpcMainInvokeEvent): boolean {
@@ -242,6 +244,10 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
         [IPC.windowSetFullscreen]: async (payload) => ok(deps.windowBridge.setFullscreen((payload as { value: boolean }).value)),
         [IPC.windowSetMiniAlwaysOnTop]: async (payload) => {
             deps.windowBridge.setMiniAlwaysOnTop((payload as { value: boolean }).value)
+            return ok(undefined)
+        },
+        [IPC.windowCloseMini]: async () => {
+            closeMiniWindow()
             return ok(undefined)
         }
     }

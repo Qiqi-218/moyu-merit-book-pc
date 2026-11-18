@@ -128,7 +128,8 @@ export const api: MoyuApi = {
         toggleMaximize: () => invoke(IPC.windowToggleMaximize),
         close: () => invoke(IPC.windowClose),
         setFullscreen: (value) => invoke(IPC.windowSetFullscreen, { value }),
-        setMiniAlwaysOnTop: (value) => invoke(IPC.windowSetMiniAlwaysOnTop, { value })
+        setMiniAlwaysOnTop: (value) => invoke(IPC.windowSetMiniAlwaysOnTop, { value }),
+        closeMini: () => invoke(IPC.windowCloseMini)
     },
     on: {
         dataChanged: (cb) => subscribe<DataChangedPayload>(EVENT_CHANNELS.dataChanged, cb),

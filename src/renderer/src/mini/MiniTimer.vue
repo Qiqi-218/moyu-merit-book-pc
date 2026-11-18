@@ -53,6 +53,10 @@ async function finish(): Promise<void> {
   if (result.ok) await refresh()
 }
 
+async function closeMini(): Promise<void> {
+  await window.moyu.window.closeMini()
+}
+
 onMounted(() => {
   void refresh()
   off = window.moyu.on.timerState(apply)
@@ -74,7 +78,10 @@ onUnmounted(() => {
   <div class="mini no-drag">
     <div class="mini__head drag-region">
       <span class="mini__label">{{ label }} · {{ statusText }}</span>
-      <span class="mini__seal">德</span>
+      <span class="mini__head-right">
+        <span class="mini__seal">德</span>
+        <button type="button" class="mini__close no-drag" aria-label="关闭迷你计时器" @click="closeMini">×</button>
+      </span>
     </div>
     <div class="mini__time mono">{{ display }}</div>
     <div class="mini__actions">
@@ -122,6 +129,30 @@ onUnmounted(() => {
   color: var(--green);
   font-family: var(--font-serif);
   font-size: 10px;
+}
+
+.mini__head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mini__close {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+  -webkit-app-region: no-drag;
+}
+
+.mini__close:hover {
+  background: var(--danger);
+  color: var(--surface);
 }
 
 .mini__time {

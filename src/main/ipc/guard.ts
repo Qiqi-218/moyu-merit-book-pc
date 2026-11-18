@@ -289,7 +289,8 @@ export const GUARD_VALIDATORS: Record<InvokeChannel, Validator> = {
     [IPC.windowToggleMaximize]: noArg,
     [IPC.windowClose]: noArg,
     [IPC.windowSetFullscreen]: object((value) => bool(value, 'value')),
-    [IPC.windowSetMiniAlwaysOnTop]: object((value) => bool(value, 'value'))
+    [IPC.windowSetMiniAlwaysOnTop]: object((value) => bool(value, 'value')),
+    [IPC.windowCloseMini]: noArg
 }
 
 export function guardPayload(channel: InvokeChannel, payload: unknown): string | null {

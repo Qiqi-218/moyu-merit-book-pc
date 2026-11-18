@@ -153,7 +153,8 @@ export const IPC = {
     windowToggleMaximize: 'moyu:window:toggle-maximize',
     windowClose: 'moyu:window:close',
     windowSetFullscreen: 'moyu:window:set-fullscreen',
-    windowSetMiniAlwaysOnTop: 'moyu:window:set-mini-always-on-top'
+    windowSetMiniAlwaysOnTop: 'moyu:window:set-mini-always-on-top',
+    windowCloseMini: 'moyu:window:close-mini'
 } as const
 
 export const EVENT_CHANNELS = {
@@ -259,6 +260,7 @@ export interface ChannelMap {
     [IPC.windowClose]: { req: void; res: void }
     [IPC.windowSetFullscreen]: { req: { value: boolean }; res: WindowState }
     [IPC.windowSetMiniAlwaysOnTop]: { req: { value: boolean }; res: void }
+    [IPC.windowCloseMini]: { req: void; res: void }
 }
 
 export interface MoyuApi {
@@ -362,6 +364,7 @@ export interface MoyuApi {
         close(): Promise<Result<void>>
         setFullscreen(value: boolean): Promise<Result<WindowState>>
         setMiniAlwaysOnTop(value: boolean): Promise<Result<void>>
+        closeMini(): Promise<Result<void>>
     }
     on: {
         dataChanged(cb: (payload: DataChangedPayload) => void): () => void
@@ -376,4 +379,4 @@ export interface MoyuApi {
     }
 }
 
-export const MOYU_API_METHOD_COUNT = 71
+export const MOYU_API_METHOD_COUNT = 72
