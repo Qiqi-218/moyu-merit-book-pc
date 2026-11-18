@@ -173,6 +173,7 @@ export const GUARD_VALIDATORS: Record<InvokeChannel, Validator> = {
             value.fWeight === undefined ? null : num(value, 'fWeight', 0, 1, true)
         )
     ),
+    [IPC.tagsRemove]: object((value) => str(value, 'id', 1, 64)),
 
     [IPC.eventsList]: object((value) =>
         firstError(

@@ -83,3 +83,21 @@ export async function updateTag(ctx: ServiceContext, input: UpdateTagInput): Pro
         return errorToFail('tag', error)
     }
 }
+export async function removeTag(ctx: ServiceContext, id: string): Promise<Result<void>> {
+    const tag = ctx.doc.tags.find((item) => item.id === id)
+    if (!tag) return fail('E_NOT_FOUND', '没有找到这个标签')
+    if (tag.builtin) return fail('E_FORBIDDEN', '内置标签不可删除')
+    const referenced = ctx.doc.events.some((item) => item.tagId === id && item.deletedAt === null)
+    if (referenced) return fail('E_CONFLICT', '该标签正被修行事项使用，先在事项中取消选择后再删除')
+    try {
+        await ctx.commit((draft) => {
+            const index = draft.tags.findIndex((item) => item.id === id)
+            if (index >= 0) draft.tags.splice(index, 1)
+            ctx.logChange('tag', id, 'delete', tag.name, null)
+        })
+        ctx.broadcast('settings')
+        return ok(undefined)
+    } catch (error) {
+        return errorToFail('tag', error)
+    }
+}

@@ -32,6 +32,9 @@ const dirty = ref(false)
 const deleteOpen = ref(false)
 const newTagOpen = ref(false)
 const newTagName = ref('')
+const tagRemoveOpen = ref(false)
+const tagRemoveId = ref('')
+const tagRemoveName = ref('')
 
 const form = reactive({
   kind: 'todo' as EventKind,
@@ -151,6 +154,7 @@ async function save(): Promise<void> {
     }
     dirty.value = false
     ui.pushToast(editing.value ? '已保存' : '已立一桩修行', editing.value ? '修改仅对之后生成的课业生效' : '今日课业已同步生成', 'success')
+    await events.load({ kind: input.kind, status: undefined, tagId: undefined, page: 1 })
     await router.push('/events')
   } finally {
     saving.value = false
@@ -167,8 +171,34 @@ async function createTag(): Promise<void> {
   }
   await events.loadTags()
   form.tagId = result.data.id
-  newTagName.value = ''
+  cancelNewTag()
+}
+
+function cancelNewTag(): void {
   newTagOpen.value = false
+  newTagName.value = ''
+}
+
+const customTags = computed(() => events.tags.filter((item) => !item.builtin))
+
+function askRemoveTag(id: string, name: string): void {
+  tagRemoveId.value = id
+  tagRemoveName.value = name
+  tagRemoveOpen.value = true
+}
+
+async function confirmRemoveTag(): Promise<void> {
+  const id = tagRemoveId.value
+  tagRemoveOpen.value = false
+  if (!id) return
+  const result = await window.moyu.tags.remove(id)
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (form.tagId === id) form.tagId = ''
+  ui.pushToast('标签已删除', '', 'success')
+  await events.loadTags()
 }
 
 async function removeEvent(): Promise<void> {
@@ -216,8 +246,16 @@ onBeforeRouteLeave(() => {
               <AppButton variant="ghost" size="sm" @click="newTagOpen = !newTagOpen">新建标签</AppButton>
             </div>
             <div v-if="newTagOpen" class="edit__new-tag">
-              <TextInput v-model="newTagName" placeholder="标签名称" :maxlength="20" />
+              <TextInput v-model="newTagName" placeholder="标签名称" :maxlength="20" @enter="createTag" />
               <AppButton size="sm" @click="createTag">创建</AppButton>
+              <AppButton variant="text" size="sm" @click="cancelNewTag">取消</AppButton>
+            </div>
+            <div v-if="customTags.length > 0" class="edit__custom-tags">
+              <span class="edit__custom-label">自定义：</span>
+              <span v-for="tag in customTags" :key="tag.id" class="edit__custom-chip">
+                {{ tag.name }}
+                <button type="button" class="edit__custom-remove" :aria-label="`删除标签 ${tag.name}`" @click="askRemoveTag(tag.id, tag.name)">×</button>
+              </span>
             </div>
           </Field>
 
@@ -262,6 +300,16 @@ onBeforeRouteLeave(() => {
       @confirm="removeEvent"
       @cancel="deleteOpen = false"
     />
+
+    <ConfirmDialog
+      :visible="tagRemoveOpen"
+      title="删除标签"
+      :message="`确认删除自定义标签「${tagRemoveName}」？该操作立即生效；正在使用此标签的事项不受影响，但它们将不再显示标签名。`"
+      confirm-label="删除标签"
+      danger
+      @confirm="confirmRemoveTag"
+      @cancel="tagRemoveOpen = false"
+    />
   </div>
 </template>
 
@@ -297,6 +345,48 @@ onBeforeRouteLeave(() => {
   display: flex;
   gap: var(--sp-2);
   margin-top: 6px;
+}
+
+.edit__custom-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.edit__custom-label {
+  font-size: var(--fs-micro);
+  color: var(--muted-2);
+}
+
+.edit__custom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 4px 1px 10px;
+  border-radius: var(--r-pill);
+  background: var(--green-soft);
+  border: 1px solid var(--green-line);
+  color: var(--green-deep);
+  font-size: var(--fs-micro);
+}
+
+.edit__custom-remove {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--green-deep);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.edit__custom-remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .edit__target {

@@ -145,14 +145,20 @@ async function confirmDelete(): Promise<void> {
   }
 }
 
+let offDataChanged: (() => void) | null = null
+
 onMounted(async () => {
   window.addEventListener('keydown', onGlobalKey)
+  offDataChanged = window.moyu.on.dataChanged((payload) => {
+    if (payload.scope === 'events') void events.load()
+  })
   await events.loadTags()
   await events.load()
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onGlobalKey)
+  offDataChanged?.()
 })
 </script>
 

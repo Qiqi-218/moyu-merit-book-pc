@@ -129,6 +129,7 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
         [IPC.tagsList]: async () => tagSvc.listTags(ctx),
         [IPC.tagsCreate]: async (payload) => tagSvc.createTag(ctx, payload as CreateTagInput),
         [IPC.tagsUpdate]: async (payload) => tagSvc.updateTag(ctx, payload as UpdateTagInput),
+        [IPC.tagsRemove]: async (payload) => tagSvc.removeTag(ctx, (payload as { id: string }).id),
 
         [IPC.eventsList]: async (payload) => eventSvc.listEvents(ctx, payload as EventListQuery),
         [IPC.eventsGet]: async (payload) => eventSvc.getEvent(ctx, (payload as { id: string }).id),

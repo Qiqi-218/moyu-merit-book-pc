@@ -55,7 +55,8 @@ export const api: MoyuApi = {
     tags: {
         list: () => invoke(IPC.tagsList),
         create: (input) => invoke(IPC.tagsCreate, input),
-        update: (input) => invoke(IPC.tagsUpdate, input)
+        update: (input) => invoke(IPC.tagsUpdate, input),
+        remove: (id) => invoke(IPC.tagsRemove, { id })
     },
     events: {
         list: (query) => invoke(IPC.eventsList, query),

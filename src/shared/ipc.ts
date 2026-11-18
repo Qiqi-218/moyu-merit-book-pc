@@ -91,6 +91,7 @@ export const IPC = {
     tagsList: 'moyu:tags:list',
     tagsCreate: 'moyu:tags:create',
     tagsUpdate: 'moyu:tags:update',
+    tagsRemove: 'moyu:tags:remove',
 
     eventsList: 'moyu:events:list',
     eventsGet: 'moyu:events:get',
@@ -195,6 +196,7 @@ export interface ChannelMap {
     [IPC.tagsList]: { req: void; res: Tag[] }
     [IPC.tagsCreate]: { req: CreateTagInput; res: Tag }
     [IPC.tagsUpdate]: { req: UpdateTagInput; res: Tag }
+    [IPC.tagsRemove]: { req: { id: Id }; res: void }
 
     [IPC.eventsList]: { req: EventListQuery; res: EventListResult }
     [IPC.eventsGet]: { req: { id: Id }; res: EventDetail }
@@ -287,6 +289,7 @@ export interface MoyuApi {
         list(): Promise<Result<Tag[]>>
         create(input: CreateTagInput): Promise<Result<Tag>>
         update(input: UpdateTagInput): Promise<Result<Tag>>
+        remove(id: Id): Promise<Result<void>>
     }
     events: {
         list(query: EventListQuery): Promise<Result<EventListResult>>
@@ -373,4 +376,4 @@ export interface MoyuApi {
     }
 }
 
-export const MOYU_API_METHOD_COUNT = 70
+export const MOYU_API_METHOD_COUNT = 71

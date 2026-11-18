@@ -10,6 +10,7 @@ import { useTodayStore } from '@/stores/today'
 import { useTimerStore } from '@/stores/timer'
 import { useUiStore } from '@/stores/ui'
 import { useAchievementsStore } from '@/stores/achievements'
+import { useEventsStore } from '@/stores/events'
 
 const route = useRoute()
 const router = useRouter()
@@ -18,6 +19,7 @@ const today = useTodayStore()
 const timer = useTimerStore()
 const ui = useUiStore()
 const achievements = useAchievementsStore()
+const events = useEventsStore()
 
 const bare = computed(() => Boolean(route.meta.bare))
 const cleanups: Array<() => void> = []
@@ -76,6 +78,7 @@ onMounted(async () => {
   cleanups.push(
     window.moyu.on.dataChanged((payload) => {
       if (payload.scope === 'instances' || payload.scope === 'activities') void today.load()
+      if (payload.scope === 'events') void events.load()
       if (payload.scope === 'achievements') void achievements.load()
       if (payload.scope === 'settlement') void hydrateToday()
     }),
