@@ -143,6 +143,15 @@ onMounted(async () => {
     content.value = result.data.content
     tagIds.value = [...result.data.tagIds]
     intensity.value = result.data.intensity
+    const draft = await window.moyu.diary.getDraft({ scope: scope.value })
+    if (draft.ok && draft.data) {
+      businessDate.value = draft.data.businessDate || businessDate.value
+      content.value = draft.data.content
+      tagIds.value = [...draft.data.tagIds]
+      const value = Math.max(1, Math.min(5, draft.data.intensity))
+      intensity.value = value as 1 | 2 | 3 | 4 | 5
+      draftSavedAt.value = '已恢复上次草稿'
+    }
   } else {
     const draft = await window.moyu.diary.getDraft({ scope: 'diary:new' })
     if (draft.ok && draft.data) {

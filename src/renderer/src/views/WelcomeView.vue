@@ -22,7 +22,7 @@ const form = reactive({
   passphrase: '',
   confirm: '',
   dayBoundaryHour: '4',
-  loadDemo: true,
+  loadDemo: false,
   avatarSeed: 1 as 1 | 2 | 3
 })
 const errors = reactive({ nickname: '', bio: '', passphrase: '', confirm: '', general: '' })
@@ -146,7 +146,7 @@ async function submit(): Promise<void> {
         </Field>
         <label class="welcome__check">
           <input v-model="form.loadDemo" type="checkbox" />
-          <span>载入 14 天示例修行记录（用于演示图表与卷宗）</span>
+          <span>载入 14 天示例修行记录（可选，仅用于演示图表与卷宗，可随时清除）</span>
         </label>
         <p v-if="errors.general" class="welcome__error" role="alert">{{ errors.general }}</p>
       </div>

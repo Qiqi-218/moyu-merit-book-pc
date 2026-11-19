@@ -70,6 +70,7 @@ export interface Settings {
     globalShortcuts: boolean
     autoSettleOnStart: boolean
     aiEnabled: boolean
+    guidanceSeen?: boolean
     drafts: Record<string, DraftPayload>
     schemaMigrationNote?: string
 }

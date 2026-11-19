@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import TitleBar from '@/components/layout/TitleBar.vue'
 import SideBar from '@/components/layout/SideBar.vue'
 import ToastStack from '@/components/common/ToastStack.vue'
 import CommandPalette from '@/components/common/CommandPalette.vue'
+import UsageGuide from '@/components/common/UsageGuide.vue'
 import { useAppStore } from '@/stores/app'
 import { useTodayStore } from '@/stores/today'
 import { useTimerStore } from '@/stores/timer'
 import { useUiStore } from '@/stores/ui'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useEventsStore } from '@/stores/events'
+import { useSettingsStore } from '@/stores/settings'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,10 +22,19 @@ const timer = useTimerStore()
 const ui = useUiStore()
 const achievements = useAchievementsStore()
 const events = useEventsStore()
+const settingsStore = useSettingsStore()
 
 const bare = computed(() => Boolean(route.meta.bare))
 const cleanups: Array<() => void> = []
 let fullscreen = false
+
+watch(
+  () => [app.hasProfile, app.isUnlocked, settingsStore.settings?.guidanceSeen ?? false] as const,
+  ([hasProfile, unlocked, seen]) => {
+    if (hasProfile && unlocked && !seen) ui.openGuide()
+  },
+  { immediate: true }
+)
 
 async function hydrateToday(): Promise<void> {
   await app.refresh()
@@ -77,7 +88,7 @@ onMounted(async () => {
 
   cleanups.push(
     window.moyu.on.dataChanged((payload) => {
-      if (payload.scope === 'instances' || payload.scope === 'activities') void today.load()
+      if (payload.scope === 'instances' || payload.scope === 'activities') void hydrateToday()
       if (payload.scope === 'events') void events.load()
       if (payload.scope === 'achievements') void achievements.load()
       if (payload.scope === 'settlement') void hydrateToday()
@@ -130,6 +141,7 @@ onUnmounted(() => {
 
     <ToastStack />
     <CommandPalette v-if="ui.commandOpen" />
+    <UsageGuide v-if="ui.guideOpen" />
   </div>
 </template>
 

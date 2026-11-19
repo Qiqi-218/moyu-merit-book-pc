@@ -38,6 +38,25 @@ describe('profileService.createProfile', () => {
         expect(profile.ok && profile.data?.demoDataLoaded).toBe(false)
     })
 
+    it('不载入示例数据时，新账户没有任何历史、分数与快照', async () => {
+        const ctx = await createContext()
+        const result = await createProfile(ctx, baseInput)
+        expect(result.ok).toBe(true)
+        expect(ctx.doc.activities.length).toBe(0)
+        expect(ctx.doc.instances.length).toBe(0)
+        expect(ctx.doc.ledgerEntries.length).toBe(0)
+        expect(ctx.doc.snapshots.length).toBe(0)
+        expect(ctx.doc.verdicts.length).toBe(0)
+        expect(ctx.doc.diaries.length).toBe(0)
+        if (result.ok) {
+            expect(result.data.today.dayTotals.mindfulnessTotal).toBe(0)
+            expect(result.data.today.dayTotals.freedomTotal).toBe(0)
+            expect(result.data.titles.mindfulness.level).toBe(0)
+            expect(result.data.titles.freedom.level).toBe(0)
+            expect(result.data.today.missing).toBe(0)
+        }
+    })
+
     it('载入示例数据后完整落盘（事项/快照/变更日志）', async () => {
         const ctx = await createContext()
         const result = await createProfile(ctx, { ...baseInput, loadDemo: true })

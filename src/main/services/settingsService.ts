@@ -29,6 +29,7 @@ export async function patchSettings(ctx: ServiceContext, patch: SettingsPatch): 
             if (patch.globalShortcuts !== undefined) settings.globalShortcuts = patch.globalShortcuts
             if (patch.autoSettleOnStart !== undefined) settings.autoSettleOnStart = patch.autoSettleOnStart
             if (patch.aiEnabled !== undefined) settings.aiEnabled = patch.aiEnabled
+            if (patch.guidanceSeen !== undefined) settings.guidanceSeen = patch.guidanceSeen
             if (patch.notifications) {
                 if (patch.notifications.timer !== undefined) settings.notifications.timer = patch.notifications.timer
                 if (patch.notifications.settlement !== undefined) settings.notifications.settlement = patch.notifications.settlement

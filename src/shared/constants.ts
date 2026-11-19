@@ -82,6 +82,7 @@ export function createDefaultSettings(): Settings {
         globalShortcuts: true,
         autoSettleOnStart: true,
         aiEnabled: false,
+        guidanceSeen: false,
         drafts: {},
         schemaMigrationNote: ''
     }

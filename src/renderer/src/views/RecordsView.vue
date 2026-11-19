@@ -50,9 +50,12 @@ async function settle(): Promise<void> {
 
 async function exportJson(): Promise<void> {
   const result = await window.moyu.backup.exportJson()
-  if (!result) return
-  if (result.canceled) return
-  ui.pushToast('已导出', result.path ?? '', 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (result.data.canceled) return
+  ui.pushToast('已导出', result.data.path ?? '', 'success')
 }
 
 onMounted(async () => {

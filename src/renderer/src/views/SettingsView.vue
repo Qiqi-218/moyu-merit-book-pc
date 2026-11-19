@@ -128,36 +128,59 @@ async function resetRules(): Promise<void> {
 
 async function createBackup(): Promise<void> {
   const result = await window.moyu.backup.create()
-  if (result && !result.canceled) ui.pushToast('完整备份已保存', result.path, 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (result.data.canceled) return
+  ui.pushToast('完整备份已保存', result.data.path, 'success')
 }
 
 async function restoreBackup(): Promise<void> {
   const result = await window.moyu.backup.restore()
-  if (result && !result.canceled) {
-    ui.pushToast('已从备份恢复', '', 'success')
-    await app.refresh()
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
   }
+  if (result.data.canceled) return
+  ui.pushToast('已从备份恢复', '', 'success')
+  await app.refresh()
 }
 
 async function exportJson(): Promise<void> {
   const result = await window.moyu.backup.exportJson()
-  if (result && !result.canceled) ui.pushToast('已导出 JSON', result.path ?? '', 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (result.data.canceled) return
+  ui.pushToast('已导出 JSON', result.data.path ?? '', 'success')
 }
 
 async function importJson(): Promise<void> {
   const result = await window.moyu.backup.importJson()
-  if (result && !result.canceled) {
-    ui.pushToast('已导入', '', 'success')
-    await app.refresh()
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
   }
+  if (result.data.canceled) return
+  ui.pushToast('已导入', '', 'success')
+  await app.refresh()
 }
 
 async function clearDemo(): Promise<void> {
   clearDemoOpen.value = false
   const result = await window.moyu.backup.clearDemo(true)
-  if (!result) return
-  ui.pushToast('已清除示例数据', `重算 ${result.recalculatedDates.length} 天快照`, 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  ui.pushToast('已清除示例数据', `重算 ${result.data.recalculatedDates.length} 天快照`, 'success')
   await app.refresh()
+}
+
+function openGuide(): void {
+  ui.openGuide()
 }
 
 async function clearAll(): Promise<void> {
@@ -337,6 +360,9 @@ onMounted(() => {
           </div>
           <div class="shortcuts">
             <span v-for="item in ['Ctrl+1~4 切换页面', 'Ctrl+N 新建事项', 'Ctrl+Shift+D 写手记', 'Ctrl+Shift+T 开始/暂停计时', 'Ctrl+K 命令面板', 'Ctrl+F 搜索事项', 'F11 全屏']" :key="item">{{ item }}</span>
+          </div>
+          <div class="settings-actions">
+            <AppButton size="sm" variant="ghost" @click="openGuide">查看使用教学</AppButton>
           </div>
           <p class="settings-note">数据仅存本机 · 无需联网 · 不催促，也不责备</p>
         </SectionCard>

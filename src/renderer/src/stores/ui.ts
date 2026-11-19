@@ -15,6 +15,7 @@ export const useUiStore = defineStore('ui', {
     state: () => ({
         toasts: [] as ToastItem[],
         commandOpen: false,
+        guideOpen: false,
         errorBanner: ''
     }),
     actions: {
@@ -35,6 +36,12 @@ export const useUiStore = defineStore('ui', {
         },
         closeCommand(): void {
             this.commandOpen = false
+        },
+        openGuide(): void {
+            this.guideOpen = true
+        },
+        closeGuide(): void {
+            this.guideOpen = false
         },
         setError(message: string): void {
             this.errorBanner = message

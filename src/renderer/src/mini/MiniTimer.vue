@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { TimerState } from '@shared/types/dto'
+import { displaySecondsOf } from '@shared/timerMath'
 
 const state = ref<TimerState>({ active: null, miniWindowOpen: true })
 const seconds = ref(0)
@@ -26,14 +27,14 @@ const display = computed(() => {
   return `${String(minutes).padStart(2, '0')}:${String(rest).padStart(2, '0')}`
 })
 
+function displayOf(active: TimerState['active']): number {
+  if (!active) return 0
+  return displaySecondsOf(active, Date.now())
+}
+
 function apply(next: TimerState): void {
   state.value = next
-  const active = next.active
-  if (!active) {
-    seconds.value = 0
-    return
-  }
-  seconds.value = active.remainingSeconds ?? active.elapsedSeconds
+  seconds.value = displayOf(next.active)
 }
 
 async function refresh(): Promise<void> {
@@ -63,8 +64,7 @@ onMounted(() => {
   ticker = window.setInterval(() => {
     const active = state.value.active
     if (!active || active.status !== 'running') return
-    if (active.mode === 'countdown') seconds.value = Math.max(0, seconds.value - 1)
-    else seconds.value += 1
+    seconds.value = displayOf(active)
   }, 1000)
 })
 

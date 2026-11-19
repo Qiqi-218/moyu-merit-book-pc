@@ -31,7 +31,13 @@ async function search(): Promise<void> {
 
 function execute(item: SearchItem | undefined): void {
   if (!item) return
-  if (item.action === 'export') void window.moyu.backup.exportJson()
+  if (item.action === 'export') {
+    void (async () => {
+      const result = await window.moyu.backup.exportJson()
+      if (!result.ok) ui.pushToast(result.error.message, result.error.hint)
+      else if (!result.data.canceled) ui.pushToast('已导出', result.data.path ?? '', 'success')
+    })()
+  }
   if (item.route) void router.push(item.route)
   ui.closeCommand()
 }

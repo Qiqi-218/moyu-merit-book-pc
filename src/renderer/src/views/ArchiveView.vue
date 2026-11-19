@@ -7,11 +7,13 @@ import AppButton from '@/components/common/AppButton.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import Badge from '@/components/common/Badge.vue'
 import { useRecordsStore } from '@/stores/records'
+import { useAppStore } from '@/stores/app'
 import { useUiStore } from '@/stores/ui'
 import type { DailyDetail, DailyArchiveCard, PeriodCard } from '@shared/types/dto'
 import { formatShortCN, parseDateParts, weekdayShort } from '@shared/dateUtils'
 
 const records = useRecordsStore()
+const app = useAppStore()
 const ui = useUiStore()
 
 const tab = ref('daily')
@@ -87,20 +89,34 @@ function pageTo(page: number): void {
 
 async function exportJson(): Promise<void> {
   const result = await window.moyu.backup.exportJson()
-  if (result && !result.canceled) ui.pushToast('已导出', result.path ?? '', 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (result.data.canceled) return
+  ui.pushToast('已导出', result.data.path ?? '', 'success')
 }
 
 async function createBackup(): Promise<void> {
   const result = await window.moyu.backup.create()
-  if (result && !result.canceled) ui.pushToast('完整备份已保存', result.path, 'success')
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
+  }
+  if (result.data.canceled) return
+  ui.pushToast('完整备份已保存', result.data.path, 'success')
 }
 
 async function restoreBackup(): Promise<void> {
   const result = await window.moyu.backup.restore()
-  if (result && !result.canceled) {
-    ui.pushToast('已从备份恢复', '数据已重新载入。', 'success')
-    await load()
+  if (!result.ok) {
+    ui.pushToast(result.error.message, result.error.hint)
+    return
   }
+  if (result.data.canceled) return
+  ui.pushToast('已从备份恢复', '数据已重新载入。', 'success')
+  await app.refresh()
+  await load()
 }
 
 function dateBlock(date: string): { day: string; month: string; week: string } {

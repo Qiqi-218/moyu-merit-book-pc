@@ -27,7 +27,7 @@ const id = computed(() => (typeof route.params.id === 'string' ? route.params.id
 const editing = computed(() => Boolean(id.value))
 const loading = ref(false)
 const saving = ref(false)
-const touched = ref(false)
+const initialized = ref(false)
 const dirty = ref(false)
 const deleteOpen = ref(false)
 const newTagOpen = ref(false)
@@ -45,7 +45,7 @@ const form = reactive({
   targetValue: '1',
   targetUnit: 'times' as TargetUnit
 })
-const errors = reactive({ title: '', target: '' })
+const errors = reactive({ title: '', notes: '', target: '' })
 
 const kindOptions = [
   { value: 'todo', label: EVENT_KIND_LABEL['todo'] ?? '待办' },
@@ -109,32 +109,34 @@ onMounted(async () => {
     form.targetValue = String(event.targetValue)
     form.targetUnit = event.targetUnit
   }
+  initialized.value = true
 })
 
 watch(
   form,
   () => {
-    if (touched.value) dirty.value = true
+    if (!initialized.value || saving.value) return
+    dirty.value = true
   },
   { deep: true }
 )
 
 function validate(): boolean {
   errors.title = ''
+  errors.notes = ''
   errors.target = ''
   const titleCheck = validateEventTitle(form.title)
   if (!titleCheck.valid) errors.title = titleCheck.message ?? '标题不正确'
   const notesCheck = validateNotes(form.notes)
-  if (!notesCheck.valid) errors.title = notesCheck.message ?? '备注不正确'
+  if (!notesCheck.valid) errors.notes = notesCheck.message ?? '备注不正确'
   if (form.kind !== 'principle') {
     const targetCheck = validateTargetValue(Number(form.targetValue))
     if (!targetCheck.valid) errors.target = targetCheck.message ?? '目标值不正确'
   }
-  return !errors.title && !errors.target
+  return !errors.title && !errors.notes && !errors.target
 }
 
 async function save(): Promise<void> {
-  touched.value = true
   if (!validate()) return
   saving.value = true
   try {
@@ -272,8 +274,8 @@ onBeforeRouteLeave(() => {
             </Field>
           </div>
 
-          <Field label="备注" hint="最多 500 字">
-            <TextArea v-model="form.notes" :maxlength="500" :rows="3" placeholder="写一点提醒自己的话…" />
+          <Field label="备注" :error="errors.notes" hint="最多 500 字">
+            <TextArea v-model="form.notes" :maxlength="500" :rows="3" placeholder="写一点提醒自己的话…" :invalid="Boolean(errors.notes)" />
           </Field>
 
           <div class="edit__preview">

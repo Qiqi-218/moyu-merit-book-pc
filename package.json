@@ -1,6 +1,6 @@
 {
   "name": "moyu-merit-book",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "摸鱼功德簿 · 本地单机双轨修行桌面工具",
   "main": "./out/main/index.js",
   "author": "Moyu Merit Book",

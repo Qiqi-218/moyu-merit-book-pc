@@ -11,10 +11,11 @@ import ProgressBar from '@/components/common/ProgressBar.vue'
 import { useTimerStore } from '@/stores/timer'
 import { useTodayStore } from '@/stores/today'
 import { useUiStore } from '@/stores/ui'
-import type { RecordsOverview, TimerFinishResult } from '@shared/types/dto'
+import type { RecordsOverview, TimerActiveState, TimerFinishResult } from '@shared/types/dto'
 import type { TimerMode, TimerPurpose } from '@shared/types/models'
 import { TARGET_UNIT_LABEL } from '@shared/constants'
 import { formatDateCN } from '@shared/dateUtils'
+import { displaySecondsOf } from '@shared/timerMath'
 
 const route = useRoute()
 const timer = useTimerStore()
@@ -31,7 +32,7 @@ const overview = ref<RecordsOverview | null>(null)
 const recent = ref<Array<{ id: string; title: string; minutes: number; purpose: string }>>([])
 const recordOpen = ref(false)
 const finishResult = ref<TimerFinishResult | null>(null)
-const autoFinished = ref(false)
+
 let ticker: number | null = null
 
 const modeOptions = [
@@ -53,7 +54,7 @@ const instanceOptions = computed(() => [
 
 const isActive = computed(() => timer.active !== null)
 const isRunning = computed(() => timer.active?.status === 'running')
-const isPaused = computed(() => timer.active?.status === 'paused')
+
 const activeMode = computed(() => timer.active?.mode ?? mode.value)
 const activePurpose = computed(() => timer.active?.purpose ?? purpose.value)
 const plannedSeconds = computed(() => timer.active?.plannedSeconds ?? plannedMinutes.value * 60)
@@ -80,13 +81,17 @@ const selectedTitle = computed(() => {
   return today.instances.find((item) => item.id === id)?.eventTitle ?? '已选课业'
 })
 
+function displayOf(active: TimerActiveState): number {
+  return displaySecondsOf(active, Date.now())
+}
+
 function syncDisplay(): void {
   const active = timer.active
   if (!active) {
     displaySeconds.value = mode.value === 'countdown' ? plannedMinutes.value * 60 : 0
     return
   }
-  displaySeconds.value = active.mode === 'countdown' ? active.remainingSeconds ?? 0 : active.elapsedSeconds
+  displaySeconds.value = displayOf(active)
 }
 
 async function start(): Promise<void> {
@@ -101,18 +106,20 @@ async function start(): Promise<void> {
 }
 
 async function pause(): Promise<void> {
-  await timer.pause()
+  const success = await timer.pause()
+  if (success) syncDisplay()
 }
 
 async function resume(): Promise<void> {
-  await timer.resume()
+  const success = await timer.resume()
+  if (success) syncDisplay()
 }
 
 async function finish(): Promise<void> {
   const result = await timer.finish()
   if (!result) return
   finishResult.value = result
-  autoFinished.value = false
+
   if (result.session.purpose === 'focus' && result.canRecord) recordOpen.value = true
   syncDisplay()
 }
@@ -194,7 +201,6 @@ watch(
   () => timer.active,
   () => {
     syncDisplay()
-    if (!timer.active) autoFinished.value = false
   }
 )
 
@@ -205,16 +211,9 @@ onMounted(async () => {
   await loadOverview()
   await loadRecent()
   ticker = window.setInterval(() => {
-    if (!timer.active || timer.active.status !== 'running') return
-    if (timer.active.mode === 'countdown') {
-      displaySeconds.value = Math.max(0, displaySeconds.value - 1)
-      if (displaySeconds.value === 0 && !autoFinished.value) {
-        autoFinished.value = true
-        void finish()
-      }
-    } else {
-      displaySeconds.value += 1
-    }
+    const active = timer.active
+    if (!active || active.status !== 'running') return
+    displaySeconds.value = displayOf(active)
   }, 1000)
 })
 
@@ -284,7 +283,7 @@ onUnmounted(() => {
 
             <p class="timer__instance">{{ selectedTitle }}</p>
             <p class="timer__status">
-              {{ isActive ? (isRunning ? '计时进行中' : '已暂停') : displaySeconds === 0 && activeMode === 'countdown' ? '倒计时已归零，可结束计时' : '准备好后开始' }}
+              {{ isActive ? (displaySeconds === 0 && activeMode === 'countdown' ? '倒计时已归零，可结束计时' : isRunning ? '计时进行中' : '已暂停') : displaySeconds === 0 && activeMode === 'countdown' ? '倒计时已归零，可结束计时' : '准备好后开始' }}
             </p>
 
             <div class="timer__segments">

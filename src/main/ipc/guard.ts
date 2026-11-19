@@ -93,7 +93,8 @@ const settingsPatch: Validator = object((value) => {
         'miniTimerOnTop',
         'globalShortcuts',
         'autoSettleOnStart',
-        'aiEnabled'
+        'aiEnabled',
+        'guidanceSeen'
     ]
     for (const key of Object.keys(value)) if (!allowed.includes(key)) return `不支持修改字段 ${key}`
     return firstError(
@@ -107,7 +108,8 @@ const settingsPatch: Validator = object((value) => {
         value.miniTimerOnTop === undefined ? null : bool(value, 'miniTimerOnTop', true),
         value.globalShortcuts === undefined ? null : bool(value, 'globalShortcuts', true),
         value.autoSettleOnStart === undefined ? null : bool(value, 'autoSettleOnStart', true),
-        value.aiEnabled === undefined ? null : bool(value, 'aiEnabled', true)
+        value.aiEnabled === undefined ? null : bool(value, 'aiEnabled', true),
+        value.guidanceSeen === undefined ? null : bool(value, 'guidanceSeen', true)
     )
 })
 

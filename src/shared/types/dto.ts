@@ -130,6 +130,7 @@ export interface SettingsPatch {
     globalShortcuts?: boolean
     autoSettleOnStart?: boolean
     aiEnabled?: boolean
+    guidanceSeen?: boolean
 }
 
 export interface EventInput {
@@ -215,6 +216,8 @@ export interface TimerActiveState {
     plannedSeconds: number | null
     elapsedSeconds: number
     remainingSeconds: number | null
+    accumulatedSeconds: number
+    resumedAt: ISODate | null
     instanceId: Id | null
     instanceTitle: string | null
     startedAt: ISODate

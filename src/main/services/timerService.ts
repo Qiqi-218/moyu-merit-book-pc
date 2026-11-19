@@ -37,6 +37,8 @@ function stateOf(ctx: ServiceContext): TimerState {
             plannedSeconds: session.plannedSeconds,
             elapsedSeconds: elapsed,
             remainingSeconds: session.plannedSeconds ? Math.max(0, session.plannedSeconds - elapsed) : null,
+            accumulatedSeconds: Math.floor(Math.max(0, session.accumulatedSeconds)),
+            resumedAt: session.status === 'running' ? session.resumedAt : null,
             instanceId: session.instanceId,
             instanceTitle: event?.title ?? null,
             startedAt: session.startedAt

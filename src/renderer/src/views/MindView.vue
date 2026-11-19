@@ -10,15 +10,14 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import StackedBar from '@/components/charts/StackedBar.vue'
 import { useDiaryStore } from '@/stores/diary'
 import { useAppStore } from '@/stores/app'
-import { useUiStore } from '@/stores/ui'
 import type { DiaryView } from '@shared/types/dto'
-import { addDays, addMonths, daysInMonth, formatDateCN, monthLabel, monthStart, parseDateParts, weekdayCN, weekdayIndex } from '@shared/dateUtils'
+import { addDays, addMonths, daysInMonth, formatDateCN, monthLabel, monthStart, parseDateParts, weekdayIndex } from '@shared/dateUtils'
 import { INTENSITY_LABEL } from '@shared/constants'
 
 const router = useRouter()
 const diary = useDiaryStore()
 const app = useAppStore()
-const ui = useUiStore()
+
 const deleteTarget = ref<DiaryView | null>(null)
 
 const today = computed(() => app.today?.businessDate ?? new Date().toISOString().slice(0, 10))
