@@ -3,6 +3,7 @@ node_modules.bak/
 out/
 release/win-unpacked/
 release/builder-debug.yml
+release/摸鱼功德簿 1.0.0.exe
 dist/
 coverage/
 logs/

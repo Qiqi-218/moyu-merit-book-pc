@@ -7,7 +7,7 @@
 - 主进程是唯一可信数据源，渲染层只做界面；
 - 图表全部为手写内联 SVG，无 UI 库、图表库、CSS 框架、图标库、dayjs、axios。
 
-**只想用不想开发？** 安装包已随仓库发布：无需装 Node，直接从 [`release/`](release/) 下载 `摸鱼功德簿 Setup 1.0.0.exe`（安装版）或 `摸鱼功德簿 1.0.0.exe`（免安装版），双击运行即可。
+**只想用不想开发？** 安装包已随仓库发布：无需装 Node，直接从 [`release/`](release/) 下载 `摸鱼功德簿 Setup 1.1.0.exe`（安装版）或 `摸鱼功德簿 1.1.0.exe`（免安装版），双击运行即可。
 
 ## 一、运行与校验
 
@@ -36,11 +36,11 @@ npm run pack          # 免安装目录
 | --- | --- | --- |
 | 类型检查（主进程） | `tsc -p tsconfig.node.json --noEmit` | exit 0，0 error |
 | 类型检查（渲染层） | `tsc -p tsconfig.web.json --noEmit` | exit 0，0 error |
-| 单元测试 | `npm run test` | 8 个测试文件、45 个用例全部通过，exit 0 |
+| 单元测试 | `npm run test` | 11 个测试文件、57 个用例全部通过，exit 0 |
 | 构建 | `npm run build` | `out/main`、`out/preload`、`out/renderer/index.html`、`out/renderer/mini-timer.html` 均生成，exit 0 |
 | 设计红线 | `npm run lint:guard` | 三项脚本均通过 |
 | 桌面实机 | `npm run dev` | 启动进入入道/解锁/首页，入道提交、课业打卡、每日结算与打包链路实机走通 |
-| Windows 安装包 | `npm run dist:win` | 产出 `release/摸鱼功德簿 Setup 1.0.0.exe`（NSIS，约 87MB）与 `release/摸鱼功德簿 1.0.0.exe`（portable，约 87MB）及 blockmap，exit 0 |
+| Windows 安装包 | `npm run dist:win` | 产出 `release/摸鱼功德簿 Setup 1.1.0.exe`（NSIS，约 87MB）与 `release/摸鱼功德簿 1.1.0.exe`（portable，约 87MB）及 blockmap，exit 0 |
 
 > **环境说明**：Windows 非管理员首次执行 `dist:win` 时，electron-builder 解压 winCodeSign 工具包会因「创建符号链接特权」报错（缺的只是 macOS 侧 dylib 链接，Windows 打包不使用）。若遇到，可开启系统「开发者模式」或以管理员运行一次；也可以手动把 `winCodeSign-2.6.0.7z` 解压到 `%LOCALAPPDATA%\electron-builder\Cache\winCodeSign\winCodeSign-2.6.0\` 后重跑。Electron 运行时异常时运行 `scripts/fix-binaries.ps1` 一键修复，详见 `docs/GETTING_STARTED.md`。
 
