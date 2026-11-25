@@ -1,5 +1,6 @@
 node_modules/
 node_modules.bak/
+backup/
 out/
 release/win-unpacked/
 release/builder-debug.yml

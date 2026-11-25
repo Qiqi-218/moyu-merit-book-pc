@@ -20,7 +20,7 @@ import { getMiniWindow, isMiniSender, openMiniWindow, setMiniAlwaysOnTop } from 
 import { hideApplicationMenu } from './desktop/appMenu'
 import { TrayController } from './desktop/tray'
 import { notifyIfEnabled } from './desktop/notifications'
-import { applyGlobalShortcut, unregisterAllShortcuts } from './desktop/shortcuts'
+import { applyGlobalShortcut, applyQuickNoteShortcut, unregisterAllShortcuts } from './desktop/shortcuts'
 import { applyLaunchAtLogin } from './desktop/autostart'
 import { registerHandlers } from './ipc/registerHandlers'
 
@@ -32,6 +32,8 @@ let store: JsonStore | null = null
 let context: ServiceContext | null = null
 let isQuitting = false
 let firstCloseNotified = false
+let reminderTimer: ReturnType<typeof setInterval> | null = null
+let lastReminderDate = ''
 
 function resourceDir(): string {
     return app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources')
@@ -204,6 +206,7 @@ async function init(): Promise<void> {
             applyGlobalShortcut(settings.globalShortcuts, () => {
                 void toggleTimerFromGlobal()
             })
+            applyQuickNoteShortcut(settings.globalShortcuts, () => openQuickNote())
             mainWindow?.setBackgroundColor(settings.theme === 'night' ? '#1E2420' : '#F4F0E6')
             setMiniAlwaysOnTop(settings.miniTimerOnTop)
             tray?.refresh()
@@ -236,6 +239,34 @@ async function init(): Promise<void> {
     applyGlobalShortcut(context.doc.settings.globalShortcuts, () => {
         void toggleTimerFromGlobal()
     })
+    applyQuickNoteShortcut(context.doc.settings.globalShortcuts, () => openQuickNote())
+    startReviewReminder()
+}
+
+function openQuickNote(): void {
+    showWindow()
+    emit(EVENT_CHANNELS.quickNote, undefined)
+}
+
+function reviewTimeOf(date: Date): string {
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+function startReviewReminder(): void {
+    if (reminderTimer) clearInterval(reminderTimer)
+    reminderTimer = setInterval(() => {
+        if (!context) return
+        const settings = context.doc.settings
+        if (!settings.reminderEnabled || !settings.reminderTime) return
+        const now = new Date()
+        if (reviewTimeOf(now) !== settings.reminderTime) return
+        const key = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+        if (lastReminderDate === key) return
+        lastReminderDate = key
+        notifyIfEnabled(settings.notifications.settlement, '回顾时刻', '要不要花一分钟看看今天的修行？')
+        emit(EVENT_CHANNELS.reminderReview, undefined)
+    }, 30_000)
+    if (reminderTimer && typeof reminderTimer.unref === 'function') reminderTimer.unref()
 }
 
 async function toggleTimerFromGlobal(): Promise<void> {
@@ -286,6 +317,10 @@ if (!gotLock) {
 
     app.on('before-quit', () => {
         isQuitting = true
+        if (reminderTimer) {
+            clearInterval(reminderTimer)
+            reminderTimer = null
+        }
         unregisterAllShortcuts()
         tray?.destroy()
         const mini = getMiniWindow()

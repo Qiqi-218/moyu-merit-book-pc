@@ -14,16 +14,21 @@ import type {
     AchievementUnlock,
     ActivityListQuery,
     ActivityResult,
+
     ArchiveDailyResult,
     ArchivePeriodQuery,
     ArchivePeriodResult,
     ArchiveQuery,
+    BatchArchiveInput,
+    BatchRescheduleInput,
+    BatchResult,
     Bootstrap,
     CheckInInput,
     ClearAllInput,
     ClearDemoResult,
     CreateProfileInput,
     CreateTagInput,
+    CopyLastWeekInput,
     DailyDetail,
     DataChangedPayload,
     DiaryInput,
@@ -38,6 +43,7 @@ import type {
     ExportFileResult,
     FileOpResult,
     GenerateResult,
+    HeatmapResult,
     HistoryQuery,
     HistoryResult,
     InstanceDayQuery,
@@ -66,6 +72,7 @@ import type {
     UpdateProfileInput,
     UpdateTagInput,
     VersionInfo,
+    WeeklyReport,
     WindowState
 } from './types/dto'
 
@@ -103,6 +110,9 @@ export const IPC = {
     instancesListByDate: 'moyu:instances:list-by-date',
     instancesGenerateToday: 'moyu:instances:generate-today',
     instancesSetStatus: 'moyu:instances:set-status',
+    instancesBatchReschedule: 'moyu:instances:batch-reschedule',
+    instancesBatchArchive: 'moyu:instances:batch-archive',
+    instancesCopyLastWeek: 'moyu:instances:copy-last-week',
 
     activitiesCheckIn: 'moyu:activities:check-in',
     activitiesList: 'moyu:activities:list',
@@ -139,6 +149,9 @@ export const IPC = {
     recordsDailyDetail: 'moyu:records:daily-detail',
     recordsSearch: 'moyu:records:search',
 
+    insightsWeekly: 'moyu:insights:weekly',
+    insightsHeatmap: 'moyu:insights:heatmap',
+
     achievementsList: 'moyu:achievements:list',
 
     backupExportJson: 'moyu:backup:export-json',
@@ -166,6 +179,8 @@ export const EVENT_CHANNELS = {
     achievementUnlocked: 'moyu:event:achievement-unlocked',
     navigate: 'moyu:event:navigate',
     windowState: 'moyu:event:window-state',
+    quickNote: 'moyu:event:quick-note',
+    reminderReview: 'moyu:event:reminder-review',
     error: 'moyu:event:error'
 } as const
 
@@ -209,6 +224,9 @@ export interface ChannelMap {
     [IPC.instancesListByDate]: { req: InstanceDayQuery; res: InstanceView[] }
     [IPC.instancesGenerateToday]: { req: void; res: GenerateResult }
     [IPC.instancesSetStatus]: { req: SetInstanceStatusInput; res: InstanceView }
+    [IPC.instancesBatchReschedule]: { req: BatchRescheduleInput; res: BatchResult }
+    [IPC.instancesBatchArchive]: { req: BatchArchiveInput; res: BatchResult }
+    [IPC.instancesCopyLastWeek]: { req: CopyLastWeekInput; res: BatchResult }
 
     [IPC.activitiesCheckIn]: { req: CheckInInput; res: ActivityResult }
     [IPC.activitiesList]: { req: ActivityListQuery; res: Activity[] }
@@ -244,6 +262,9 @@ export interface ChannelMap {
     [IPC.recordsHistory]: { req: HistoryQuery; res: HistoryResult }
     [IPC.recordsDailyDetail]: { req: { businessDate: string }; res: DailyDetail }
     [IPC.recordsSearch]: { req: { keyword: string }; res: SearchResult }
+
+    [IPC.insightsWeekly]: { req: void; res: WeeklyReport }
+    [IPC.insightsHeatmap]: { req: { year: number }; res: HeatmapResult }
 
     [IPC.achievementsList]: { req: void; res: AchievementBoard }
 
@@ -305,6 +326,9 @@ export interface MoyuApi {
         listByDate(businessDate: string): Promise<Result<InstanceView[]>>
         generateToday(): Promise<Result<GenerateResult>>
         setStatus(input: SetInstanceStatusInput): Promise<Result<InstanceView>>
+        batchReschedule(input: BatchRescheduleInput): Promise<Result<BatchResult>>
+        batchArchive(input: BatchArchiveInput): Promise<Result<BatchResult>>
+        copyLastWeek(input: CopyLastWeekInput): Promise<Result<BatchResult>>
     }
     activities: {
         checkIn(input: CheckInInput): Promise<Result<ActivityResult>>
@@ -346,6 +370,10 @@ export interface MoyuApi {
         dailyDetail(businessDate: string): Promise<Result<DailyDetail>>
         search(keyword: string): Promise<Result<SearchResult>>
     }
+    insights: {
+        weekly(): Promise<Result<WeeklyReport>>
+        heatmap(year: number): Promise<Result<HeatmapResult>>
+    }
     achievements: {
         list(): Promise<Result<AchievementBoard>>
     }
@@ -374,9 +402,11 @@ export interface MoyuApi {
         titlePromoted(cb: (payload: TitlePromotion) => void): () => void
         achievementUnlocked(cb: (payload: AchievementUnlock[]) => void): () => void
         navigate(cb: (payload: NavigatePayload) => void): () => void
+        quickNote(cb: (payload: void) => void): () => void
+        reminderReview(cb: (payload: void) => void): () => void
         windowState(cb: (payload: WindowState) => void): () => void
         error(cb: (payload: AppError) => void): () => void
     }
 }
 
-export const MOYU_API_METHOD_COUNT = 72
+export const MOYU_API_METHOD_COUNT = 77

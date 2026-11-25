@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
+import YearHeatmap from '@/components/records/YearHeatmap.vue'
 import SectionCard from '@/components/common/SectionCard.vue'
 import Segmented from '@/components/common/Segmented.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -158,6 +159,8 @@ onMounted(async () => {
           </template>
         </div>
       </SectionCard>
+
+      <YearHeatmap class="trend-heat" />
     </div>
   </div>
 </template>
@@ -170,6 +173,10 @@ onMounted(async () => {
   gap: var(--sp-3);
   flex-wrap: wrap;
   margin-bottom: var(--sp-3);
+}
+
+.trend-heat {
+  margin-top: var(--sp-4);
 }
 
 .trend-custom {

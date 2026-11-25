@@ -6,6 +6,8 @@ import SideBar from '@/components/layout/SideBar.vue'
 import ToastStack from '@/components/common/ToastStack.vue'
 import CommandPalette from '@/components/common/CommandPalette.vue'
 import UsageGuide from '@/components/common/UsageGuide.vue'
+import QuickNote from '@/components/common/QuickNote.vue'
+import ReminderDialog from '@/components/common/ReminderDialog.vue'
 import { useAppStore } from '@/stores/app'
 import { useTodayStore } from '@/stores/today'
 import { useTimerStore } from '@/stores/timer'
@@ -106,6 +108,12 @@ onMounted(async () => {
     window.moyu.on.navigate((payload) => {
       void router.push(payload.route)
     }),
+    window.moyu.on.quickNote(() => {
+      ui.openQuickNote()
+    }),
+    window.moyu.on.reminderReview(() => {
+      ui.openReminder()
+    }),
     window.moyu.on.windowState((state) => {
       fullscreen = state.fullscreen
     }),
@@ -142,6 +150,8 @@ onUnmounted(() => {
     <ToastStack />
     <CommandPalette v-if="ui.commandOpen" />
     <UsageGuide v-if="ui.guideOpen" />
+    <QuickNote v-if="ui.quickNoteOpen" />
+    <ReminderDialog v-if="ui.reminderOpen" />
   </div>
 </template>
 

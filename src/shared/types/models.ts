@@ -71,6 +71,8 @@ export interface Settings {
     autoSettleOnStart: boolean
     aiEnabled: boolean
     guidanceSeen?: boolean
+    reminderEnabled?: boolean
+    reminderTime?: string
     drafts: Record<string, DraftPayload>
     schemaMigrationNote?: string
 }

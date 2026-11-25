@@ -7,8 +7,11 @@ import type { Result } from '@shared/result'
 import type {
     ArchivePeriodQuery,
     ArchiveQuery,
+    BatchArchiveInput,
+    BatchRescheduleInput,
     CheckInInput,
     ClearAllInput,
+    CopyLastWeekInput,
     CreateProfileInput,
     CreateTagInput,
     DiaryInput,
@@ -43,6 +46,7 @@ import * as settlementSvc from '../services/settlementService'
 import * as achievementSvc from '../services/achievementService'
 import * as backupSvc from '../services/backupService'
 import * as recordsSvc from '../services/recordsService'
+import * as insightsSvc from '../services/insightsService'
 import { guardPayload } from './guard'
 import { closeMiniWindow } from '../windows/miniWindow'
 
@@ -155,6 +159,9 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
             const input = payload as SetInstanceStatusInput
             return instanceSvc.setInstanceStatus(ctx, input.instanceId, input.status)
         },
+        [IPC.instancesBatchReschedule]: async (payload) => instanceSvc.batchReschedule(ctx, payload as BatchRescheduleInput),
+        [IPC.instancesBatchArchive]: async (payload) => instanceSvc.batchArchive(ctx, payload as BatchArchiveInput),
+        [IPC.instancesCopyLastWeek]: async (payload) => instanceSvc.copyLastWeek(ctx, payload as CopyLastWeekInput),
 
         [IPC.activitiesCheckIn]: async (payload) => activitySvc.checkIn(ctx, payload as CheckInInput),
         [IPC.activitiesList]: async (payload) => {
@@ -223,6 +230,9 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
         [IPC.recordsSearch]: async (payload) => recordsSvc.search(ctx, (payload as { keyword: string }).keyword),
 
         [IPC.achievementsList]: async () => achievementSvc.getBoard(ctx),
+
+        [IPC.insightsWeekly]: async () => insightsSvc.weeklyReport(ctx),
+        [IPC.insightsHeatmap]: async (payload) => insightsSvc.yearHeatmap(ctx, (payload as { year: number }).year),
 
         [IPC.backupExportJson]: async () => backupSvc.exportJson(ctx),
         [IPC.backupCreate]: async () => backupSvc.createBackup(ctx),

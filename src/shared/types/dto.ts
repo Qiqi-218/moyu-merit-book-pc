@@ -131,6 +131,8 @@ export interface SettingsPatch {
     autoSettleOnStart?: boolean
     aiEnabled?: boolean
     guidanceSeen?: boolean
+    reminderEnabled?: boolean
+    reminderTime?: string
 }
 
 export interface EventInput {
@@ -552,4 +554,75 @@ export interface ClearAllInput {
 
 export interface ExportFileResult extends FileOpResult {
     path: string
+}
+export interface WeeklyReportDay {
+    date: BusinessDate
+    mindfulness: number
+    freedom: number
+    focusMinutes: number
+    completed: number
+    total: number
+}
+
+export interface WeeklyReportHour {
+    hour: number
+    minutes: number
+}
+
+export interface WeeklyReportEmotion {
+    emoji: string
+    name: string
+    count: number
+}
+
+export interface WeeklyReport {
+    startDate: BusinessDate
+    endDate: BusinessDate
+    days: WeeklyReportDay[]
+    mindfulnessTotal: number
+    freedomTotal: number
+    focusMinutes: number
+    completionRate: number
+    activeDays: number
+    bestHours: WeeklyReportHour[]
+    emotions: WeeklyReportEmotion[]
+    verdictLines: string[]
+}
+
+export interface HeatmapCell {
+    date: BusinessDate
+    mindfulness: number
+    freedom: number
+    total: number
+}
+
+export interface HeatmapResult {
+    year: number
+    cells: HeatmapCell[]
+    max: number
+    activeDays: number
+    totalDays: number
+    currentStreak: number
+    longestStreak: number
+    totalMindfulness: number
+    totalFreedom: number
+}
+
+export interface BatchRescheduleInput {
+    fromDate: BusinessDate
+    toDate: BusinessDate
+}
+
+export interface BatchArchiveInput {
+    beforeDate: BusinessDate
+}
+
+export interface CopyLastWeekInput {
+    sourceDate: BusinessDate
+    targetDate: BusinessDate
+}
+
+export interface BatchResult {
+    affected: number
+    dates: BusinessDate[]
 }

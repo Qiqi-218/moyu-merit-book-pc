@@ -16,9 +16,11 @@ import type { TimerMode, TimerPurpose } from '@shared/types/models'
 import { TARGET_UNIT_LABEL } from '@shared/constants'
 import { formatDateCN } from '@shared/dateUtils'
 import { displaySecondsOf } from '@shared/timerMath'
+import { AMBIENT_KINDS, AMBIENT_LABELS, useAmbientSound } from '@/composables/useAmbientSound'
 
 const route = useRoute()
 const timer = useTimerStore()
+const ambient = useAmbientSound()
 const today = useTodayStore()
 const ui = useUiStore()
 
@@ -103,6 +105,10 @@ async function start(): Promise<void> {
   if (selectedInstanceId.value) payload.instanceId = selectedInstanceId.value
   const success = await timer.start(payload)
   if (success) syncDisplay()
+}
+
+function onAmbientVolume(event: Event): void {
+  ambient.setVolume(Number((event.target as HTMLInputElement).value))
 }
 
 async function pause(): Promise<void> {
@@ -318,6 +324,38 @@ onUnmounted(() => {
             </div>
 
             <p class="timer__note">退出本页不会丢失计时；结束计时不会自动完成事项。</p>
+
+            <div class="timer__ambient">
+              <div class="timer__ambient-head">
+                <span class="timer__ambient-label">环境音</span>
+                <span class="timer__ambient-hint">本地合成 · 无音频文件</span>
+              </div>
+              <div class="timer__ambient-body">
+                <div class="timer__ambient-kinds">
+                  <button
+                    v-for="key in AMBIENT_KINDS"
+                    :key="key"
+                    type="button"
+                    class="timer__ambient-btn"
+                    :class="{ 'timer__ambient-btn--active': ambient.kind.value === key }"
+                    :aria-pressed="ambient.kind.value === key"
+                    @click="ambient.setKind(key)"
+                  >
+                    {{ AMBIENT_LABELS[key] }}
+                  </button>
+                </div>
+                <input
+                  class="timer__ambient-volume"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  :value="ambient.volume.value"
+                  aria-label="环境音音量"
+                  @input="onAmbientVolume"
+                />
+              </div>
+            </div>
           </div>
         </SectionCard>
 
@@ -525,6 +563,72 @@ onUnmounted(() => {
   font-size: var(--fs-micro);
   color: var(--muted-2);
   text-align: center;
+}
+
+.timer__ambient {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--sp-3);
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+}
+
+.timer__ambient-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.timer__ambient-label {
+  font-size: var(--fs-note);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+}
+
+.timer__ambient-hint {
+  font-size: var(--fs-micro);
+  color: var(--muted-2);
+}
+
+.timer__ambient-body {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.timer__ambient-kinds {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+}
+
+.timer__ambient-btn {
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-note);
+  color: var(--muted);
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.timer__ambient-btn:hover {
+  color: var(--green-deep);
+}
+
+.timer__ambient-btn--active {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.timer__ambient-volume {
+  flex: 1;
+  accent-color: var(--green);
 }
 
 .timer-stats {

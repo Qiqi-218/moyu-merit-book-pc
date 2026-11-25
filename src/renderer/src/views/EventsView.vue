@@ -10,11 +10,13 @@ import ProgressBar from '@/components/common/ProgressBar.vue'
 import TagChip from '@/components/common/TagChip.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import Modal from '@/components/common/Modal.vue'
 import Select from '@/components/common/Select.vue'
 import { useEventsStore } from '@/stores/events'
 import { useTodayStore } from '@/stores/today'
 import { useUiStore } from '@/stores/ui'
 import type { EventDetail, EventKind, EventSort } from '@shared/types/dto'
+import { addDays } from '@shared/dateUtils'
 import type { EventStatus } from '@shared/types/models'
 import { EVENT_KIND_LABEL, EVENT_STATUS_LABEL, TARGET_UNIT_LABEL } from '@shared/constants'
 
@@ -27,6 +29,8 @@ const searchRef = ref<HTMLInputElement | null>(null)
 const keyword = ref(events.query.keyword)
 const deleteTarget = ref<EventDetail | null>(null)
 const busyId = ref('')
+const batchOpen = ref(false)
+const batchBusy = ref<'' | 'reschedule' | 'archive' | 'copy'>('')
 
 const kindOptions = computed(() => [
   { value: 'todo', label: EVENT_KIND_LABEL['todo'] ?? '待办', count: events.countsByKind.todo },
@@ -95,6 +99,33 @@ function onGlobalKey(event: KeyboardEvent): void {
 watch(keyword, (value) => {
   if (value.trim() === '') void events.setKeyword('')
 })
+
+async function runBatch(action: 'reschedule' | 'archive' | 'copy'): Promise<void> {
+  const date = today.businessDate
+  if (!date) {
+    ui.pushToast('今日日期尚未就绪', '请先回到首页加载今日课业。')
+    return
+  }
+  batchBusy.value = action
+  try {
+    const outcome = action === 'reschedule'
+      ? await window.moyu.instances.batchReschedule({ fromDate: addDays(date, -1), toDate: date })
+      : action === 'archive'
+        ? await window.moyu.instances.batchArchive({ beforeDate: date })
+        : await window.moyu.instances.copyLastWeek({ sourceDate: addDays(date, -7), targetDate: date })
+    if (!outcome.ok) {
+      ui.pushToast(outcome.error.message, outcome.error.hint)
+      return
+    }
+    const labels = { reschedule: '已顺延未完成待办', archive: '已收起过去的已完成课业', copy: '已复制上周安排' }
+    ui.pushToast(labels[action], `影响 ${outcome.data.affected} 条`, 'success')
+    batchOpen.value = false
+    await events.load()
+    await today.load(date)
+  } finally {
+    batchBusy.value = ''
+  }
+}
 
 async function checkIn(event: EventDetail): Promise<void> {
   const instance = event.todayInstance
@@ -175,6 +206,7 @@ onUnmounted(() => {
           aria-label="搜索修行事项"
           @keydown="onSearchKey"
         />
+        <AppButton variant="ghost" @click="batchOpen = true">批量整理</AppButton>
         <AppButton @click="router.push('/events/new')">立一桩修行</AppButton>
       </template>
     </PageHeader>
@@ -255,6 +287,25 @@ onUnmounted(() => {
         </Card>
       </div>
     </div>
+
+    <Modal v-if="batchOpen" title="批量整理" :width="460" @close="batchOpen = false">
+      <div class="batch">
+        <p class="batch__lead">一次性整理近期课业，不改变已经产生的功德。</p>
+        <div class="batch__row">
+          <div><span class="batch__label">顺延未完成</span><span class="batch__desc">把昨天及更早未完成的待办移到今天</span></div>
+          <AppButton size="sm" variant="secondary" :loading="batchBusy === 'reschedule'" @click="runBatch('reschedule')">顺延</AppButton>
+        </div>
+        <div class="batch__row">
+          <div><span class="batch__label">收起已完成</span><span class="batch__desc">把今天之前的已完成待办收进历史</span></div>
+          <AppButton size="sm" variant="secondary" :loading="batchBusy === 'archive'" @click="runBatch('archive')">收起</AppButton>
+        </div>
+        <div class="batch__row">
+          <div><span class="batch__label">复制上周安排</span><span class="batch__desc">把上周同一天的课业复制到今天，已存在的不重复</span></div>
+          <AppButton size="sm" variant="secondary" :loading="batchBusy === 'copy'" @click="runBatch('copy')">复制</AppButton>
+        </div>
+        <p class="batch__hint">操作即时生效，已产生的功德流水与判词不会受影响。</p>
+      </div>
+    </Modal>
 
     <ConfirmDialog
       :visible="deleteTarget !== null"
@@ -463,5 +514,47 @@ onUnmounted(() => {
 
 .more__danger {
   color: var(--danger);
+}
+
+.batch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.batch__lead {
+  font-size: var(--fs-note);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.batch__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+}
+
+.batch__label {
+  display: block;
+  font-size: var(--fs-body);
+  color: var(--ink);
+}
+
+.batch__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-micro);
+  color: var(--muted);
+}
+
+.batch__hint {
+  font-size: var(--fs-micro);
+  color: var(--muted-2);
+  text-align: center;
 }
 </style>

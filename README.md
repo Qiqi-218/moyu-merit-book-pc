@@ -7,6 +7,8 @@
 - 主进程是唯一可信数据源，渲染层只做界面；
 - 图表全部为手写内联 SVG，无 UI 库、图表库、CSS 框架、图标库、dayjs、axios。
 
+近期新增：修行周报、全局速记（`Ctrl+Shift+S`）、专注环境音（本地合成，无音频文件）、年度修行热力图、事项批量整理，以及可关闭的温和回顾提醒。
+
 **只想用不想开发？** 安装包已随仓库发布：无需装 Node，直接从 [`release/`](release/) 下载 `摸鱼功德簿 Setup 1.1.0.exe`（安装版）或 `摸鱼功德簿 1.1.0.exe`（免安装版），双击运行即可。
 
 ## 一、运行与校验
@@ -36,7 +38,7 @@ npm run pack          # 免安装目录
 | --- | --- | --- |
 | 类型检查（主进程） | `tsc -p tsconfig.node.json --noEmit` | exit 0，0 error |
 | 类型检查（渲染层） | `tsc -p tsconfig.web.json --noEmit` | exit 0，0 error |
-| 单元测试 | `npm run test` | 11 个测试文件、57 个用例全部通过，exit 0 |
+| 单元测试 | `npm run test` | 14 个测试文件、70 个用例全部通过，exit 0 |
 | 构建 | `npm run build` | `out/main`、`out/preload`、`out/renderer/index.html`、`out/renderer/mini-timer.html` 均生成，exit 0 |
 | 设计红线 | `npm run lint:guard` | 三项脚本均通过 |
 | 桌面实机 | `npm run dev` | 启动进入入道/解锁/首页，入道提交、课业打卡、每日结算与打包链路实机走通 |

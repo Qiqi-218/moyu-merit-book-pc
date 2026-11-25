@@ -16,6 +16,8 @@ export const useUiStore = defineStore('ui', {
         toasts: [] as ToastItem[],
         commandOpen: false,
         guideOpen: false,
+        quickNoteOpen: false,
+        reminderOpen: false,
         errorBanner: ''
     }),
     actions: {
@@ -42,6 +44,20 @@ export const useUiStore = defineStore('ui', {
         },
         closeGuide(): void {
             this.guideOpen = false
+        },
+        openQuickNote(): void {
+            this.reminderOpen = false
+            this.quickNoteOpen = true
+        },
+        closeQuickNote(): void {
+            this.quickNoteOpen = false
+        },
+        openReminder(): void {
+            this.quickNoteOpen = false
+            this.reminderOpen = true
+        },
+        closeReminder(): void {
+            this.reminderOpen = false
         },
         setError(message: string): void {
             this.errorBanner = message

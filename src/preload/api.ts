@@ -69,7 +69,10 @@ export const api: MoyuApi = {
     instances: {
         listByDate: (businessDate) => invoke(IPC.instancesListByDate, { businessDate }),
         generateToday: () => invoke(IPC.instancesGenerateToday),
-        setStatus: (input) => invoke(IPC.instancesSetStatus, input)
+        setStatus: (input) => invoke(IPC.instancesSetStatus, input),
+        batchReschedule: (input) => invoke(IPC.instancesBatchReschedule, input),
+        batchArchive: (input) => invoke(IPC.instancesBatchArchive, input),
+        copyLastWeek: (input) => invoke(IPC.instancesCopyLastWeek, input)
     },
     activities: {
         checkIn: (input) => invoke(IPC.activitiesCheckIn, input),
@@ -114,6 +117,10 @@ export const api: MoyuApi = {
     achievements: {
         list: () => invoke(IPC.achievementsList)
     },
+    insights: {
+        weekly: () => invoke(IPC.insightsWeekly),
+        heatmap: (year) => invoke(IPC.insightsHeatmap, { year })
+    },
     backup: {
         exportJson: () => invoke(IPC.backupExportJson),
         create: () => invoke(IPC.backupCreate),
@@ -139,6 +146,8 @@ export const api: MoyuApi = {
         titlePromoted: (cb) => subscribe<TitlePromotion>(EVENT_CHANNELS.titlePromoted, cb),
         achievementUnlocked: (cb) => subscribe<AchievementUnlock[]>(EVENT_CHANNELS.achievementUnlocked, cb),
         navigate: (cb) => subscribe<NavigatePayload>(EVENT_CHANNELS.navigate, cb),
+        quickNote: (cb) => subscribe<void>(EVENT_CHANNELS.quickNote, cb),
+        reminderReview: (cb) => subscribe<void>(EVENT_CHANNELS.reminderReview, cb),
         windowState: (cb) => subscribe<WindowState>(EVENT_CHANNELS.windowState, cb),
         error: (cb) => subscribe<AppError>(EVENT_CHANNELS.error, cb)
     }

@@ -113,7 +113,8 @@ onMounted(async () => {
     <PageHeader title="摸鱼功德簿" subtitle="修身 · 今日修行，自在随心">
       <template #actions>
         <span class="home__date">{{ dateText }}</span>
-        <span class="home__shortcut">Ctrl+K 命令面板</span>
+        <AppButton variant="ghost" size="sm" @click="ui.openQuickNote()">速记</AppButton>
+        <span class="home__shortcut">Ctrl+Shift+S 速记 · Ctrl+K 命令面板</span>
       </template>
     </PageHeader>
 

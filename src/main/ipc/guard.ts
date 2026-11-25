@@ -61,6 +61,13 @@ function firstError(...errors: Array<string | null>): string | null {
     return null
 }
 
+function timeOfDay(value: Record<string, unknown>, key: string, optional = false): string | null {
+    const field = value[key]
+    if (field === undefined || field === null) return optional ? null : `缺少字段 ${key}`
+    if (typeof field !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(field)) return `字段 ${key} 需要是 HH:MM 格式`
+    return null
+}
+
 const eventInput: Validator = object((value) =>
     firstError(
         oneOf(value, 'kind', ['todo', 'habit', 'principle']),
@@ -94,7 +101,9 @@ const settingsPatch: Validator = object((value) => {
         'globalShortcuts',
         'autoSettleOnStart',
         'aiEnabled',
-        'guidanceSeen'
+        'guidanceSeen',
+        'reminderEnabled',
+        'reminderTime'
     ]
     for (const key of Object.keys(value)) if (!allowed.includes(key)) return `不支持修改字段 ${key}`
     return firstError(
@@ -109,7 +118,9 @@ const settingsPatch: Validator = object((value) => {
         value.globalShortcuts === undefined ? null : bool(value, 'globalShortcuts', true),
         value.autoSettleOnStart === undefined ? null : bool(value, 'autoSettleOnStart', true),
         value.aiEnabled === undefined ? null : bool(value, 'aiEnabled', true),
-        value.guidanceSeen === undefined ? null : bool(value, 'guidanceSeen', true)
+        value.guidanceSeen === undefined ? null : bool(value, 'guidanceSeen', true),
+        value.reminderEnabled === undefined ? null : bool(value, 'reminderEnabled', true),
+        value.reminderTime === undefined ? null : timeOfDay(value, 'reminderTime', true)
     )
 })
 
@@ -287,6 +298,15 @@ export const GUARD_VALIDATORS: Record<InvokeChannel, Validator> = {
     [IPC.backupClearAll]: object((value) => (value.confirmText === '清空' ? null : '请输入「清空」以确认')),
 
     [IPC.windowState]: noArg,
+    [IPC.instancesBatchReschedule]: object((value) =>
+        firstError(isBusinessDate(value.fromDate) ? null : '开始日期不正确', isBusinessDate(value.toDate) ? null : '结束日期不正确')
+    ),
+    [IPC.instancesBatchArchive]: object((value) => (isBusinessDate(value.beforeDate) ? null : '日期格式不正确')),
+    [IPC.instancesCopyLastWeek]: object((value) =>
+        firstError(isBusinessDate(value.sourceDate) ? null : '来源日期不正确', isBusinessDate(value.targetDate) ? null : '目标日期不正确')
+    ),
+    [IPC.insightsWeekly]: noArg,
+    [IPC.insightsHeatmap]: object((value) => num(value, 'year', 2000, 3000, false, true)),
     [IPC.windowMinimize]: noArg,
     [IPC.windowToggleMaximize]: noArg,
     [IPC.windowClose]: noArg,

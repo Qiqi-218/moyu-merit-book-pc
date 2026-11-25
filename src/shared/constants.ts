@@ -83,6 +83,8 @@ export function createDefaultSettings(): Settings {
         autoSettleOnStart: true,
         aiEnabled: false,
         guidanceSeen: false,
+        reminderEnabled: false,
+        reminderTime: '21:30',
         drafts: {},
         schemaMigrationNote: ''
     }

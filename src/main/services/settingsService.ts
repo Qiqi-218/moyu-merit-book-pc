@@ -15,6 +15,9 @@ export async function patchSettings(ctx: ServiceContext, patch: SettingsPatch): 
         const check = validateDayBoundary(patch.dayBoundaryHour)
         if (!check.valid) return fail('E_VALIDATION', check.message)
     }
+    if (patch.reminderTime !== undefined && !/^([01]\d|2[0-3]):[0-5]\d$/.test(patch.reminderTime)) {
+        return fail('E_VALIDATION', '提醒时间格式不正确')
+    }
     try {
         const next = await ctx.commit((draft) => {
             const settings = draft.settings
@@ -30,6 +33,8 @@ export async function patchSettings(ctx: ServiceContext, patch: SettingsPatch): 
             if (patch.autoSettleOnStart !== undefined) settings.autoSettleOnStart = patch.autoSettleOnStart
             if (patch.aiEnabled !== undefined) settings.aiEnabled = patch.aiEnabled
             if (patch.guidanceSeen !== undefined) settings.guidanceSeen = patch.guidanceSeen
+            if (patch.reminderEnabled !== undefined) settings.reminderEnabled = patch.reminderEnabled
+            if (patch.reminderTime !== undefined) settings.reminderTime = patch.reminderTime
             if (patch.notifications) {
                 if (patch.notifications.timer !== undefined) settings.notifications.timer = patch.notifications.timer
                 if (patch.notifications.settlement !== undefined) settings.notifications.settlement = patch.notifications.settlement

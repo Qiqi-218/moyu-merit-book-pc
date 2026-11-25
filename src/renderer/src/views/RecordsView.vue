@@ -7,6 +7,7 @@ import DualValueCard from '@/components/common/DualValueCard.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import Badge from '@/components/common/Badge.vue'
 import Sparkline from '@/components/charts/Sparkline.vue'
+import WeeklyReportCard from '@/components/records/WeeklyReportCard.vue'
 import { useAppStore } from '@/stores/app'
 import { useRecordsStore } from '@/stores/records'
 import { useUiStore } from '@/stores/ui'
@@ -83,6 +84,8 @@ onMounted(async () => {
             :sample="records.overview?.demoFlag ?? false"
             large
           />
+
+          <WeeklyReportCard />
 
           <SectionCard title="近 14 天双值" subtitle="正念绿线 · 逍遥金线">
             <Sparkline :points="sparkPoints" />

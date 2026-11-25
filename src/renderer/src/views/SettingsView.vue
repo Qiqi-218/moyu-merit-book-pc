@@ -22,6 +22,13 @@ const settingsStore = useSettingsStore()
 const ui = useUiStore()
 
 const settings = computed(() => settingsStore.settings)
+const reminderTime = computed(() => String(settingsStore.settings?.reminderTime ?? '21:30'))
+
+function setReminderTime(value: string): void {
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return
+  void settingsStore.patch({ reminderTime: value })
+}
+
 const version = computed(() => app.version)
 const profile = computed(() => app.profile)
 const boundaryOptions = Array.from({ length: 24 }, (_, index) => ({ value: String(index), label: `${index} 点` }))
@@ -48,7 +55,7 @@ const rulesResetOpen = ref(false)
 
 const rulesVersion = computed(() => DEFAULT_RULES.rulesVersion)
 
-function boolValue(key: 'motion' | 'sound' | 'closeToTray' | 'launchAtLogin' | 'miniTimerOnTop' | 'globalShortcuts' | 'autoSettleOnStart' | 'aiEnabled'): boolean {
+function boolValue(key: 'motion' | 'sound' | 'closeToTray' | 'launchAtLogin' | 'miniTimerOnTop' | 'globalShortcuts' | 'autoSettleOnStart' | 'aiEnabled' | 'reminderEnabled'): boolean {
   return settings.value?.[key] ?? false
 }
 
@@ -308,10 +315,20 @@ onMounted(() => {
             </button>
           </div>
           <div class="switch-row">
-            <div><span class="switch-row__label">全局快捷键</span><span class="switch-row__desc">Ctrl+Shift+T 开始/暂停计时</span></div>
+            <div><span class="switch-row__label">全局快捷键</span><span class="switch-row__desc">Ctrl+Shift+T 计时 · Ctrl+Shift+S 速记</span></div>
             <button type="button" class="switch" role="switch" :aria-checked="boolValue('globalShortcuts')" @click="patch({ globalShortcuts: !boolValue('globalShortcuts') })">
               <span :class="{ 'switch__dot--on': boolValue('globalShortcuts') }" class="switch__dot" />
             </button>
+          </div>
+          <div class="switch-row">
+            <div><span class="switch-row__label">回顾提醒</span><span class="switch-row__desc">到点温和提醒回顾与结算，可随时关闭</span></div>
+            <button type="button" class="switch" role="switch" :aria-checked="boolValue('reminderEnabled')" @click="patch({ reminderEnabled: !boolValue('reminderEnabled') })">
+              <span :class="{ 'switch__dot--on': boolValue('reminderEnabled') }" class="switch__dot" />
+            </button>
+          </div>
+          <div v-if="boolValue('reminderEnabled')" class="switch-row">
+            <div><span class="switch-row__label">提醒时间</span><span class="switch-row__desc">每天在这个时间提醒一次</span></div>
+            <TextInput :model-value="reminderTime" type="time" class="settings-time" @update:model-value="setReminderTime" />
           </div>
         </SectionCard>
 
