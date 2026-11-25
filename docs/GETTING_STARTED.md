@@ -49,10 +49,10 @@ npm run dev
 https://github.com/Qiqi-218/moyu-merit-book-pc/tree/main/release
 ```
 
-下载后按用途选择：
+从 [GitHub Releases](https://github.com/Qiqi-218/moyu-merit-book-pc/releases/latest) 下载后按用途选择：
 
-- `摸鱼功德簿 Setup 1.2.0.exe`：**安装版**，双击按向导安装，桌面与开始菜单出现「摸鱼功德簿」快捷方式；
-- `摸鱼功德簿 1.2.0.exe`：**免安装版**（portable），双击直接运行。
+- `moyu-merit-book-Setup-1.2.0.exe`：**安装版**，双击按向导安装，桌面与开始菜单出现「摸鱼功德簿」快捷方式；
+- `moyu-merit-book-1.2.0-portable.exe`：**免安装版**（portable），双击直接运行。
 
 打包版数据目录：`%APPDATA%\摸鱼功德簿\`。
 
