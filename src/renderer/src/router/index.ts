@@ -21,6 +21,7 @@ const routes: RouteRecordRaw[] = [
     { path: '/events/:id/edit', name: 'event-edit', component: () => import('@/views/EventEditView.vue'), meta: { title: '编辑修行事项' } },
     { path: '/timer', name: 'timer', component: () => import('@/views/TimerView.vue'), meta: { title: '番茄钟' } },
     { path: '/mind', name: 'mind', component: () => import('@/views/MindView.vue'), meta: { title: '修心' } },
+    { path: '/mood', name: 'mood', component: () => import('@/views/MoodView.vue'), meta: { title: '情绪日记' } },
     { path: '/mind/diary/new', name: 'diary-new', component: () => import('@/views/DiaryEditView.vue'), meta: { title: '写手记' } },
     { path: '/mind/diary/:id', name: 'diary-edit', component: () => import('@/views/DiaryEditView.vue'), meta: { title: '编辑手记' } },
     { path: '/records', name: 'records', component: () => import('@/views/RecordsView.vue'), meta: { title: '卷宗' } },

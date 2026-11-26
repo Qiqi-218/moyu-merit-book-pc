@@ -119,7 +119,8 @@ export const api: MoyuApi = {
     },
     insights: {
         weekly: () => invoke(IPC.insightsWeekly),
-        heatmap: (year) => invoke(IPC.insightsHeatmap, { year })
+        heatmap: (year) => invoke(IPC.insightsHeatmap, { year }),
+        mood: (days) => invoke(IPC.insightsMood, { days })
     },
     backup: {
         exportJson: () => invoke(IPC.backupExportJson),

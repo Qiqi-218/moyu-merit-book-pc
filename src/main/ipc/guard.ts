@@ -307,6 +307,7 @@ export const GUARD_VALIDATORS: Record<InvokeChannel, Validator> = {
     ),
     [IPC.insightsWeekly]: noArg,
     [IPC.insightsHeatmap]: object((value) => num(value, 'year', 2000, 3000, false, true)),
+    [IPC.insightsMood]: object((value) => (value.days === undefined ? null : num(value, 'days', 7, 120, true, true))),
     [IPC.windowMinimize]: noArg,
     [IPC.windowToggleMaximize]: noArg,
     [IPC.windowClose]: noArg,

@@ -233,6 +233,7 @@ function createHandlers(deps: HandlerDeps): Record<InvokeChannel, Handler> {
 
         [IPC.insightsWeekly]: async () => insightsSvc.weeklyReport(ctx),
         [IPC.insightsHeatmap]: async (payload) => insightsSvc.yearHeatmap(ctx, (payload as { year: number }).year),
+        [IPC.insightsMood]: async (payload) => insightsSvc.moodReport(ctx, (payload as { days?: number }).days ?? 30),
 
         [IPC.backupExportJson]: async () => backupSvc.exportJson(ctx),
         [IPC.backupCreate]: async () => backupSvc.createBackup(ctx),

@@ -9,7 +9,8 @@ import { ServiceContext } from '../context'
 import { createProfile } from '../profileService'
 import { createEvent } from '../eventService'
 import { batchArchive, batchReschedule, copyLastWeek } from '../instanceService'
-import { weeklyReport, yearHeatmap } from '../insightsService'
+import { moodReport, weeklyReport, yearHeatmap } from '../insightsService'
+import { createDiary } from '../diaryService'
 import { createId } from '../../utils/id'
 
 async function createContext(nowMs: number): Promise<ServiceContext> {
@@ -112,5 +113,21 @@ describe('insights 与批量整理', () => {
         expect(copied.ok ? copied.data.affected : -1).toBe(1)
         const copyTarget = ctx.doc.instances.find((item) => item.eventId === sourceEvent && item.businessDate === today)
         expect(copyTarget?.status).toBe('pending')
+    })
+
+    it('情绪日记聚合：按日强度、占比与平均强度', async () => {
+        const ctx = await createContext(Date.UTC(2026, 4, 10, 2, 0, 0))
+        const today = ctx.today()
+        const diary = await createDiary(ctx, { businessDate: today, content: '今天很平静，也有点累。', tagIds: ['emotion-calm'], intensity: 4 })
+        expect(diary.ok).toBe(true)
+        const report = moodReport(ctx, 30)
+        expect(report.ok).toBe(true)
+        if (!report.ok) return
+        expect(report.data.totalEntries).toBe(1)
+        expect(report.data.activeDays).toBe(1)
+        expect(report.data.averageIntensity).toBe(4)
+        expect(report.data.days[report.data.days.length - 1]?.count).toBe(1)
+        expect(report.data.distribution[0]?.name).toBeTruthy()
+        expect(report.data.items[0]?.date).toBe(today)
     })
 })

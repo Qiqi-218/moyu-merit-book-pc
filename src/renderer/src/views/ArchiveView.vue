@@ -167,7 +167,7 @@ onMounted(async () => {
                   <Badge variant="gold">逍遥 +{{ card.freedomDelta }}</Badge>
                   <span class="daily-card__small">记录 {{ card.recordCount }} 笔 · 专注 {{ card.focusMinutes }} 分钟</span>
                 </div>
-                <p class="daily-card__verdict serif">{{ card.verdictText ?? '且记今日行止，静待判官落笔' }}</p>
+                <p class="daily-card__verdict serif"><span class="daily-card__seal serif">判</span>{{ card.verdictText ?? '且记今日行止，静待判官落笔' }}</p>
                 <div class="daily-card__emotions">
                   <span v-for="emotion in card.emotions" :key="emotion.tagId" class="daily-card__emotion">{{ emotion.emoji }} {{ emotion.name }}</span>
                 </div>
@@ -351,6 +351,22 @@ onMounted(async () => {
   font-size: var(--fs-body);
   color: var(--ink);
   line-height: 1.7;
+}
+
+.daily-card__seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  border-radius: 3px;
+  border: 1px solid var(--gold);
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  font-size: 11px;
+  line-height: 1;
+  vertical-align: 1px;
 }
 
 .daily-card__emotions {

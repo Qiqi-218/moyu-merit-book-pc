@@ -626,3 +626,35 @@ export interface BatchResult {
     affected: number
     dates: BusinessDate[]
 }
+export interface MoodDiaryItem {
+    id: Id
+    date: BusinessDate
+    intensity: number
+    emoji: string
+    tagName: string
+    preview: string
+}
+
+export interface MoodDayPoint {
+    date: BusinessDate
+    intensity: number
+    count: number
+}
+
+export interface MoodDistribution {
+    tagId: Id
+    emoji: string
+    name: string
+    count: number
+}
+
+export interface MoodReport {
+    startDate: BusinessDate
+    endDate: BusinessDate
+    days: MoodDayPoint[]
+    items: MoodDiaryItem[]
+    distribution: MoodDistribution[]
+    totalEntries: number
+    activeDays: number
+    averageIntensity: number
+}

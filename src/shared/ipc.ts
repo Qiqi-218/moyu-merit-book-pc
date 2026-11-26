@@ -73,6 +73,7 @@ import type {
     UpdateTagInput,
     VersionInfo,
     WeeklyReport,
+    MoodReport,
     WindowState
 } from './types/dto'
 
@@ -151,6 +152,7 @@ export const IPC = {
 
     insightsWeekly: 'moyu:insights:weekly',
     insightsHeatmap: 'moyu:insights:heatmap',
+    insightsMood: 'moyu:insights:mood',
 
     achievementsList: 'moyu:achievements:list',
 
@@ -265,6 +267,7 @@ export interface ChannelMap {
 
     [IPC.insightsWeekly]: { req: void; res: WeeklyReport }
     [IPC.insightsHeatmap]: { req: { year: number }; res: HeatmapResult }
+    [IPC.insightsMood]: { req: { days?: number }; res: MoodReport }
 
     [IPC.achievementsList]: { req: void; res: AchievementBoard }
 
@@ -373,6 +376,7 @@ export interface MoyuApi {
     insights: {
         weekly(): Promise<Result<WeeklyReport>>
         heatmap(year: number): Promise<Result<HeatmapResult>>
+        mood(days?: number): Promise<Result<MoodReport>>
     }
     achievements: {
         list(): Promise<Result<AchievementBoard>>
@@ -409,4 +413,4 @@ export interface MoyuApi {
     }
 }
 
-export const MOYU_API_METHOD_COUNT = 77
+export const MOYU_API_METHOD_COUNT = 78

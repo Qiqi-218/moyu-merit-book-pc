@@ -11,6 +11,7 @@ const primary = [
   { path: '/', label: '修身', icon: 'home' },
   { path: '/events', label: '修行事项', icon: 'list' },
   { path: '/mind', label: '修心', icon: 'moon' },
+  { path: '/mood', label: '情绪', icon: 'mood' },
   { path: '/records', label: '卷宗', icon: 'book' }
 ] as const
 
@@ -54,6 +55,9 @@ function isActive(path: string): boolean {
           </svg>
           <svg v-else-if="item.icon === 'moon'" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15.5 12.5A6 6 0 0 1 7.5 4.5a6 6 0 1 0 8 8Z" />
+          </svg>
+          <svg v-else-if="item.icon === 'mood'" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="6.6" /><path d="M7.6 8.6h.01M12.4 8.6h.01" /><path d="M6.9 12.2c.8 1 1.8 1.5 3.1 1.5s2.3-.5 3.1-1.5" />
           </svg>
           <svg v-else width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H16v13H5.5A1.5 1.5 0 0 0 4 17.5v-13Z" /><path d="M4 16.5A1.5 1.5 0 0 1 5.5 15H16" />

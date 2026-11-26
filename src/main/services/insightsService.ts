@@ -1,7 +1,7 @@
 import { ok } from '@shared/result'
 import type { Result } from '@shared/result'
 import type { BusinessDate } from '@shared/types/models'
-import type { HeatmapCell, HeatmapResult, WeeklyReport, WeeklyReportDay, WeeklyReportEmotion, WeeklyReportHour } from '@shared/types/dto'
+import type { HeatmapCell, HeatmapResult, MoodDiaryItem, MoodDistribution, MoodReport, MoodDayPoint, WeeklyReport, WeeklyReportDay, WeeklyReportEmotion, WeeklyReportHour } from '@shared/types/dto'
 import { addDays, compareDate } from '@shared/dateUtils'
 import { netOfEntries } from '../domain/scoring'
 import type { ServiceContext } from './context'
@@ -162,6 +162,60 @@ export function yearHeatmap(ctx: ServiceContext, year: number): Result<HeatmapRe
             longestStreak,
             totalMindfulness: Math.round(cells.reduce((sum, item) => sum + item.mindfulness, 0) * 10) / 10,
             totalFreedom: Math.round(cells.reduce((sum, item) => sum + item.freedom, 0) * 10) / 10
+        })
+    } catch (error) {
+        return errorToFail('insights', error)
+    }
+}
+export function moodReport(ctx: ServiceContext, days = 30): Result<MoodReport> {
+    try {
+        const endDate = ctx.today()
+        const startDate = addDays(endDate, -(days - 1))
+        const relevant = ctx.doc.diaries.filter(
+            (diary) => compareDate(diary.businessDate, startDate) >= 0 && compareDate(diary.businessDate, endDate) <= 0
+        )
+        const byDate = new Map<string, { sum: number; count: number }>()
+        const distMap = new Map<string, number>()
+        const items: MoodDiaryItem[] = []
+        for (const diary of relevant) {
+            const tag = diary.tagIds.length > 0 ? ctx.doc.tags.find((item) => item.id === diary.tagIds[0]) ?? null : null
+            const entry = byDate.get(diary.businessDate) ?? { sum: 0, count: 0 }
+            entry.sum += diary.intensity
+            entry.count += 1
+            byDate.set(diary.businessDate, entry)
+            for (const tagId of diary.tagIds) distMap.set(tagId, (distMap.get(tagId) ?? 0) + 1)
+            items.push({
+                id: diary.id,
+                date: diary.businessDate,
+                intensity: diary.intensity,
+                emoji: tag?.emoji ?? '·',
+                tagName: tag?.name ?? '未标注',
+                preview: diary.content.length > 42 ? `${diary.content.slice(0, 42)}…` : diary.content
+            })
+        }
+        const dayPoints: MoodDayPoint[] = []
+        for (let index = 0; index < days; index += 1) {
+            const date = addDays(startDate, index)
+            const entry = byDate.get(date)
+            dayPoints.push({ date, intensity: entry ? Math.round((entry.sum / entry.count) * 10) / 10 : 0, count: entry ? entry.count : 0 })
+        }
+        const distribution: MoodDistribution[] = [...distMap.entries()]
+            .map(([tagId, count]) => {
+                const tag = ctx.doc.tags.find((item) => item.id === tagId)
+                return { tagId, emoji: tag?.emoji ?? '·', name: tag?.name ?? '未命名', count }
+            })
+            .sort((a, b) => b.count - a.count)
+        items.sort((a, b) => b.date.localeCompare(a.date))
+        const totalIntensity = relevant.reduce((sum, item) => sum + item.intensity, 0)
+        return ok({
+            startDate,
+            endDate,
+            days: dayPoints,
+            items,
+            distribution,
+            totalEntries: relevant.length,
+            activeDays: dayPoints.filter((item) => item.count > 0).length,
+            averageIntensity: relevant.length > 0 ? Math.round((totalIntensity / relevant.length) * 10) / 10 : 0
         })
     } catch (error) {
         return errorToFail('insights', error)

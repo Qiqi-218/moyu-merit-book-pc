@@ -38,7 +38,10 @@ const completedCount = computed(() => today.completedCount)
 const totalCount = computed(() => today.totalCount)
 const listItems = computed(() => today.instances.slice(0, 4))
 const sample = computed(() => app.demoFlag)
-const verdictText = computed(() => overview.value?.verdict?.text ?? '且记今日行止，静待判官落笔')
+const verdictVersion = ref<'plain' | 'elegant'>('plain')
+const verdictPlain = computed(() => overview.value?.verdict?.text ?? '且记今日行止，静待判官落笔')
+const verdictElegant = computed(() => overview.value?.verdict?.polishedText || verdictPlain.value)
+const verdictTextOf = computed(() => (verdictVersion.value === 'elegant' ? verdictElegant.value : verdictPlain.value))
 const missing = computed(() => today.missing)
 const stats = computed(() => overview.value?.todayStats ?? { records: 0, focusMinutes: 0, restMinutes: 0, emotionKinds: 0 })
 const totals = computed(() => overview.value?.totals ?? { mindfulness: today.dayTotals?.mindfulnessTotal ?? 0, freedom: today.dayTotals?.freedomTotal ?? 0 })
@@ -199,16 +202,43 @@ onMounted(async () => {
         </div>
 
         <aside class="stack">
-          <SectionCard title="今日判词" subtitle="本地判词">
+          <SectionCard title="今日判词" subtitle="判官落笔">
             <template #actions>
+              <div class="judge__versions" role="group" aria-label="判词版本">
+                <button type="button" class="judge__version" :class="{ 'judge__version--active': verdictVersion === 'plain' }" @click="verdictVersion = 'plain'">简</button>
+                <button type="button" class="judge__version" :class="{ 'judge__version--active': verdictVersion === 'elegant' }" @click="verdictVersion = 'elegant'">雅</button>
+              </div>
               <Badge v-if="sample" variant="sample">示例</Badge>
             </template>
-            <div class="verdict">
-              <span class="verdict__mark serif">“</span>
-              <p class="verdict__text serif">{{ verdictText }}</p>
-              <span class="verdict__mark verdict__mark--close serif">”</span>
+            <div class="judge">
+              <div class="judge__seal" aria-hidden="true">
+                <svg viewBox="0 0 64 64" class="judge__portrait" role="img" aria-label="判官">
+                  <circle cx="32" cy="32" r="30" fill="var(--gold-soft)" stroke="var(--gold)" stroke-width="1.4" />
+                  <path d="M18 23h28l-3-6H21z" fill="var(--gold-deep)" opacity="0.85" />
+                  <rect x="14" y="23" width="36" height="4" rx="2" fill="var(--gold-deep)" />
+                  <circle cx="32" cy="38" r="11.5" fill="var(--surface)" stroke="var(--gold-deep)" stroke-width="1.2" />
+                  <circle cx="27.5" cy="36.5" r="1.5" fill="var(--ink)" />
+                  <circle cx="36.5" cy="36.5" r="1.5" fill="var(--ink)" />
+                  <path d="M26 43c1.8 2.6 3.8 3.8 6 3.8s4.2-1.2 6-3.8" fill="none" stroke="var(--gold-deep)" stroke-width="1.3" stroke-linecap="round" />
+                  <path d="M32 28.5v3" stroke="var(--gold-deep)" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div class="judge__main">
+                <div class="verdict">
+                  <span class="verdict__mark serif">“</span>
+                  <p class="verdict__text serif">{{ verdictTextOf }}</p>
+                  <span class="verdict__mark verdict__mark--close serif">”</span>
+                </div>
+                <div class="judge__basis">
+                  <span class="judge__basis-item">正念 <b>{{ deltas.m }}</b></span>
+                  <span class="judge__basis-item">逍遥 <b>{{ deltas.f }}</b></span>
+                  <span class="judge__basis-item">行止 <b>{{ stats.records }}</b> 笔</span>
+                  <span class="judge__basis-item">专注 <b>{{ stats.focusMinutes }}</b> 分</span>
+                  <span v-if="stats.emotionKinds > 0" class="judge__basis-item">情绪 <b>{{ stats.emotionKinds }}</b> 种</span>
+                </div>
+              </div>
             </div>
-            <RouterLink to="/records" class="home__link">查看卷宗 ›</RouterLink>
+            <RouterLink to="/records/archives" class="home__link">往期判词 ›</RouterLink>
           </SectionCard>
 
           <SectionCard title="今日摘要">
@@ -435,6 +465,74 @@ onMounted(async () => {
   line-height: 1.8;
   color: var(--ink);
   letter-spacing: 0.04em;
+}
+
+.judge {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.judge__seal {
+  position: relative;
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+}
+
+.judge__portrait {
+  width: 64px;
+  height: 64px;
+}
+
+.judge__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.judge__versions {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+}
+
+.judge__version {
+  width: 26px;
+  height: 22px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-micro);
+  color: var(--muted);
+  font-family: var(--font-serif);
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.judge__version--active {
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+}
+
+.judge__basis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--sp-2);
+}
+
+.judge__basis-item {
+  font-size: var(--fs-micro);
+  color: var(--muted);
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+}
+
+.judge__basis-item b {
+  color: var(--green-deep);
+  font-weight: 600;
+  margin-left: 2px;
 }
 
 .summary-grid {
